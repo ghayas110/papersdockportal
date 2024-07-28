@@ -14,27 +14,29 @@ export const metadata: Metadata = {
 
 const SignUp: React.FC = () => {
   return (
-<>
+<DefaultLayout>
+
+
 <Breadcrumb pageName="" />
 
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="px-26 py-17.5 text-center">
-            <Link className="mb-5.5 inline-block" href="/">
+            <Link className="mb-5.5 inline-block bg-black dark:bg-transparent" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo/logo1.png"}
                   alt="Logo"
-                  width={576}
-                  height={32}
+                  width={176}
+                  height={10}
                 />
                 <Image
                   className="dark:hidden"
                   src={"/images/logo/logo1.png"}
                   alt="Logo"
                   width={176}
-                  height={0}
+                  height={10}
                 />
               </Link>
               <p className="xl:px-10">
@@ -49,7 +51,7 @@ const SignUp: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium"></span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign Up to TailAdmin
+                Sign Up to PapersDock
               </h2>
 
               <form>
@@ -199,20 +201,13 @@ const SignUp: React.FC = () => {
 
           
 
-                <div className="mt-6 text-center">
-                  <p>
-                    Already have an account?{" "}
-                    <Link href="/auth/signin" className="text-primary">
-                      Sign in
-                    </Link>
-                  </p>
-                </div>
+          
               </form>
             </div>
           </div>
         </div>
       </div>
-      </>
+      </DefaultLayout>
   );
 };
 

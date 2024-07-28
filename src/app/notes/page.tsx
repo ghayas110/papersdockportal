@@ -22,29 +22,29 @@ const NotesFile = () => {
       notesId: "A2",
       image: "https://media.geeksforgeeks.org/wp-content/uploads/20230503013704/Mathematics-Banner.webp",
       title: "Notes 1: Mathematics for O-Level",
-      viewNotesUrl:"",
-      downloadNotesUrl:"" 
+      viewNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf",
+      downloadNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf" 
     },
     {
       notesId: "A3",
       image: "https://media.geeksforgeeks.org/wp-content/uploads/20240502160218/Physics.webp",
       title: "Notes 2: Physics for O-Level",
-      viewNotesUrl:"",
-      downloadNotesUrl:"" 
+      viewNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf",
+      downloadNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf" 
     },
     {
       notesId: "A4",
       image: "https://media.geeksforgeeks.org/wp-content/uploads/20231110153856/Biology-copy.webp",
       title: "Notes 3: Biology for O-Level",
-      viewNotesUrl:"",
-      downloadNotesUrl:"" 
+      viewNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf",
+      downloadNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf" 
     },
     {
       notesId: "A5",
       image: "https://miro.medium.com/v2/resize:fit:1400/1*ycIMlwgwicqlO6PcFRA-Iw.png",
       title: "Notes 4: Python for O-Level",
-      viewNotesUrl:"",
-      downloadNotesUrl:"" 
+      viewNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf",
+      downloadNotesUrl:"https://file-examples.com/storage/fe3f15b9da66a36baa1b51a/2017/10/file-sample_150kB.pdf" 
     }
   ];
   

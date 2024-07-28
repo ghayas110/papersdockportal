@@ -18,16 +18,16 @@ const NotesCard: React.FC<NotesCardProps> = ({ notesId, image, title, viewNotesU
         <div className="font-bold text-xl mb-2">{title}</div>
         <p className="text-gray-700 text-base">Class ID: {notesId}</p>
         <div className="mt-4 flex space-x-4">
+          <Link href={viewNotesUrl}>
          
-            
               <button
                 className="bg-[rgb(28,36,52)] hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded"
               >
                 View Notes
               </button>
-           
-   
-      
+       
+          </Link>
+          <Link href={downloadNotesUrl} passHref>
           
               <button
                 className="bg-[rgb(28,36,52)] hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded"
@@ -35,7 +35,7 @@ const NotesCard: React.FC<NotesCardProps> = ({ notesId, image, title, viewNotesU
                 Download Notes
               </button>
           
-         
+          </Link>
         </div>
       </div>
     </div>

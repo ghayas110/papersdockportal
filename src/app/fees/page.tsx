@@ -2,7 +2,8 @@
 
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import React, { useState } from 'react';
-import { Table, Button, Modal, Tag } from 'antd';
+import { Table, Button, Modal, Tag, Upload, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
 interface FeeData {
   id: string;
@@ -13,6 +14,7 @@ interface FeeData {
   courseId: string;
   courseName: string;
   amount: number;
+  invoiceFile?: File;
 }
 
 const feeData: FeeData[] = [
@@ -36,31 +38,45 @@ const getStatusTag = (status: 'unpaid' | 'paid' | 'waiting approval') => {
 
 const StudentFeePage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isViewInvoiceVisible, setIsViewInvoiceVisible] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeData | null>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null);
 
   const showModal = (fee: FeeData) => {
     setSelectedFee(fee);
+    setFileList([]);
     setIsModalVisible(true);
   };
 
   const handleOk = () => {
-    // Handle the payment logic here
-    if (selectedFee) {
-      console.log(`Payment made for ${selectedFee.month} ${selectedFee.year}`);
-      // Update fee status to 'waiting approval'
-      feeData.forEach(fee => {
-        if (fee.id === selectedFee.id) {
-          fee.status = 'waiting approval';
-        }
-      });
-      // Update state to reflect the change
-      setSelectedFee({ ...selectedFee, status: 'waiting approval' });
+    if (selectedFee && fileList.length > 0) {
+      selectedFee.status = 'waiting approval';
+      selectedFee.invoiceFile = fileList[0].originFileObj;
+      message.success('Payment submitted and awaiting approval');
+      setSelectedFee(null);
       setIsModalVisible(false);
+    } else {
+      message.error('Please upload an invoice file!');
     }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleViewInvoice = (fee: FeeData) => {
+    if (fee.invoiceFile) {
+      const fileUrl = URL.createObjectURL(fee.invoiceFile);
+      setInvoiceUrl(fileUrl);
+      setIsViewInvoiceVisible(true);
+    } else {
+      message.error('No invoice available to view.');
+    }
+  };
+
+  const handleUploadChange = ({ fileList }: any) => {
+    setFileList(fileList);
   };
 
   const columns = [
@@ -96,15 +112,24 @@ const StudentFeePage: React.FC = () => {
       key: 'courseName',
     },
     {
+      title: 'Invoice',
+      key: 'invoice',
+      render: (text: string, record: FeeData) => (
+        <Button type="link" onClick={() => handleViewInvoice(record)}>
+          View Invoice
+        </Button>
+      ),
+    },
+    {
       title: 'Action',
       key: 'action',
       render: (text: string, record: FeeData) => (
-        <Button 
-          type="primary" 
-          onClick={() => showModal(record)} 
+        <Button
+          type="primary"
+          onClick={() => showModal(record)}
           disabled={record.status === 'paid' || record.status === 'waiting approval'}
-          style={{ 
-            backgroundColor: record.status === 'unpaid' ? 'whitesmoke' : 'rgb(28, 36, 52)', 
+          style={{
+            backgroundColor: record.status === 'unpaid' ? 'whitesmoke' : 'rgb(28, 36, 52)',
             borderColor: record.status === 'unpaid' ? 'whitesmoke' : 'rgb(28, 36, 52)',
             color: record.status === 'unpaid' ? 'black' : 'white',
           }}
@@ -119,16 +144,16 @@ const StudentFeePage: React.FC = () => {
     <DefaultLayout>
       <div className="container mx-auto p-8">
         <Table columns={columns} dataSource={feeData} rowKey="id" />
-        <Modal 
-          title="Fee Payment" 
-          visible={isModalVisible} 
-          onOk={handleOk} 
+        <Modal
+          title="Fee Payment"
+          visible={isModalVisible}
+          onOk={handleOk}
           onCancel={handleCancel}
           footer={[
-            <Button 
-              key="pay" 
-              type="primary" 
-              onClick={handleOk} 
+            <Button
+              key="pay"
+              type="primary"
+              onClick={handleOk}
               style={{ backgroundColor: 'black', borderColor: 'black' }}
             >
               Pay
@@ -145,8 +170,25 @@ const StudentFeePage: React.FC = () => {
               <p>Year: {selectedFee.year}</p>
               <p>Amount: ${selectedFee.amount}</p>
               <p>Description: Fees for {selectedFee.month} {selectedFee.year} for the course {selectedFee.courseName}</p>
+              <Upload
+                beforeUpload={() => false}
+                onChange={handleUploadChange}
+                fileList={fileList}
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload Invoice</Button>
+              </Upload>
             </>
           )}
+        </Modal>
+
+        {/* View Invoice Modal */}
+        <Modal
+          title="View Invoice"
+          visible={isViewInvoiceVisible}
+          footer={null}
+          onCancel={() => setIsViewInvoiceVisible(false)}
+        >
+          {invoiceUrl && <iframe src={invoiceUrl} style={{ width: '100%', height: '500px' }} />}
         </Modal>
       </div>
     </DefaultLayout>
