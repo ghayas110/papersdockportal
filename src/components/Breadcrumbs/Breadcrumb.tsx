@@ -1,8 +1,9 @@
 import Link from "next/link";
 interface BreadcrumbProps {
   pageName: string;
+  course?: string;
 }
-const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
+const Breadcrumb = ({ pageName,course }: BreadcrumbProps) => {
   return (
     <div className="mb-6 flex flex-col h-20 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-title-md2 font-semibold text-black dark:text-white">
@@ -14,7 +15,7 @@ const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
           <li>
          
           </li>
-          <li className="font-medium text-primary">{pageName}</li>
+          <li className="font-medium text-primary">{course}</li>
         </ol>
       </nav>
     </div>
