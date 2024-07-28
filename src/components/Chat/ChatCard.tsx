@@ -8,8 +8,8 @@ const chatData: Chat[] = [
     name: "Devid Heilo",
     text: "How are you?",
     time: 12,
-    textCount: 3,
-    dot: 3,
+    textCount: 0,
+    dot: 1,
   },
   {
     avatar: "/images/user/user-02.png",
@@ -25,15 +25,15 @@ const chatData: Chat[] = [
     text: "What's up?",
     time: 32,
     textCount: 0,
-    dot: 3,
+    dot: 1,
   },
   {
     avatar: "/images/user/user-05.png",
     name: "Jane Doe",
     text: "Great",
     time: 32,
-    textCount: 2,
-    dot: 6,
+    textCount: 0,
+    dot: 1,
   },
   {
     avatar: "/images/user/user-01.png",
@@ -41,15 +41,15 @@ const chatData: Chat[] = [
     text: "How are you?",
     time: 32,
     textCount: 0,
-    dot: 3,
+    dot: 1,
   },
   {
     avatar: "/images/user/user-03.png",
     name: "Jhon Doe",
     text: "How are you?",
     time: 32,
-    textCount: 3,
-    dot: 6,
+    textCount: 0,
+    dot: 1,
   },
 ];
 
@@ -57,7 +57,7 @@ const ChatCard = () => {
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
       <h4 className="mb-6 px-7.5 text-xl font-semibold text-black dark:text-white">
-        Chats
+        Comments
       </h4>
 
       <div>

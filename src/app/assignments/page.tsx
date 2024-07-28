@@ -13,6 +13,7 @@ interface Assignment {
   assignmentName: string;
   questionFile: string;
   deadline: string;
+  obtainedMarks?: number; // Add optional obtainedMarks field
 }
 
 interface AssignmentUploadPageProps {
@@ -35,6 +36,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       assignmentName: 'Assignment 1: Algebra',
       questionFile: 'https://example.com/questions1.pdf',
       deadline: '2024-08-15',
+      obtainedMarks: undefined,
     },
     {
       id: '2',
@@ -43,6 +45,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       assignmentName: 'Assignment 2: Geometry',
       questionFile: 'https://example.com/questions2.pdf',
       deadline: '2024-08-20',
+      obtainedMarks: undefined,
     },
     {
       id: '3',
@@ -50,7 +53,8 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       courseName: 'Physics',
       assignmentName: 'Assignment 1: Mechanics',
       questionFile: 'https://example.com/questions3.pdf',
-      deadline: '2024-08-25',
+      deadline: '2024-07-25',
+      obtainedMarks: undefined,
     },
     // Add more assignments as needed
   ];
@@ -149,6 +153,13 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
         >
           Submit
         </Button>
+      ),
+    },
+    {
+      title: 'Obtained Marks',
+      key: 'obtainedMarks',
+      render: (text: string, record: Assignment) => (
+        record.obtainedMarks !== undefined ? record.obtainedMarks : 'Not yet graded'
       ),
     },
   ];
