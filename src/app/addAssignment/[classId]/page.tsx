@@ -1,131 +1,217 @@
 "use client";
+
 import { useRouter } from 'next/navigation';
 import { Table, Button, Space, Modal, Form, Input, Upload, DatePicker, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 interface Assignment {
   sno: number;
-  id: string;
+  assignment_id: string;
   title: string;
   date: string;
   deadline: string;
   assignmentFile?: File;
 }
 
-const initialAssignmentData: Assignment[] = [
-  { sno: 1, id: 'assignment1', title: 'Assignment 1: Introduction', date: '2024-01-01', deadline: '2024-02-01' },
-  { sno: 2, id: 'assignment2', title: 'Assignment 2: Advanced Topics', date: '2024-01-15', deadline: '2024-02-15' },
-  // Add more assignments as needed
-];
-
-interface CoursePageProps {
-  params: {
-    classId: string;
-    courseId: string;
-  };
-}
-
-const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
+const CourseAssignments: React.FC = () => {
   const router = useRouter();
-  const courseId = params.courseId;
-  const classId = params.classId;
-  const [assignments, setAssignments] = useState(initialAssignmentData);
-  const [isEditModalVisible, setEditModalVisible] = useState(false);
-  const [isAddModalVisible, setAddModalVisible] = useState(false);
-  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [isViewModalVisible, setViewModalVisible] = useState(false);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   const [form] = Form.useForm();
 
+  const accessToken = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch('https://lms.papersdock.com/assignments/get-all-assignments', {
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAssignments(data.data.map((assignment: any, index: number) => ({
+          sno: index + 1,
+          assignment_id: assignment.assignment_id,
+          title: assignment.title,
+          date: new Date(assignment.created_at).toISOString().split('T')[0],
+          deadline: new Date(assignment.deadline).toISOString().split('T')[0],
+        })));
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to fetch assignments', error);
+      message.error('Failed to fetch assignments');
+    }
+  };
+
   const handleAddAssignment = () => {
     setSelectedAssignment(null);
     form.resetFields();
     setFileList([]);
-    setAddModalVisible(true);
+    setAddModalOpen(true);
   };
 
   const handleEditAssignment = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
     form.setFieldsValue({
-      id: assignment.id,
+      assignment_id: assignment.assignment_id,
       title: assignment.title,
       deadline: moment(assignment.deadline),
     });
-    setFileList(assignment.assignmentFile ? [{ uid: '-1', name: assignment.assignmentFile.name, status: 'done', url: URL.createObjectURL(assignment.assignmentFile) }] : []);
-    setEditModalVisible(true);
+    if (assignment.assignmentFile) {
+      setFileList([{
+        uid: '-1',
+        name: assignment.assignmentFile.name,
+        status: 'done',
+        url: URL.createObjectURL(assignment.assignmentFile),
+      }]);
+    } else {
+      setFileList([]);
+    }
+    setEditModalOpen(true);
   };
 
   const handleDeleteAssignment = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
-    setDeleteModalVisible(true);
+    setDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedAssignment) {
-      setAssignments(assignments.filter((assignment) => assignment.id !== selectedAssignment.id));
-      setDeleteModalVisible(false);
+      try {
+        const response = await fetch('https://lms.papersdock.com/assignments/delete-assignment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'accesstoken': `Bearer ${accessToken}`,
+            'x-api-key': 'lms_API',
+          },
+          body: JSON.stringify({ assignment_id: selectedAssignment.assignment_id }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setAssignments(assignments.filter((assignment) => assignment.assignment_id !== selectedAssignment.assignment_id));
+          message.success(data.message);
+        } else {
+          message.error(data.message);
+        }
+      } catch (error) {
+        console.error('Failed to delete assignment', error);
+        message.error('Failed to delete assignment');
+      }
+      setDeleteModalOpen(false);
       setSelectedAssignment(null);
     }
   };
 
-  const handleConfirmAdd = () => {
-    form.validateFields().then(values => {
+  const handleConfirmAdd = async () => {
+    try {
+      const values = await form.validateFields();
       if (fileList.length === 0) {
         message.error('Please upload an assignment file!');
         return;
       }
-      const newAssignment: Assignment = {
-        sno: assignments.length + 1,
-        id: values.id,
-        title: values.title,
-        date: new Date().toISOString().split('T')[0],
-        deadline: values.deadline.format('YYYY-MM-DD'),
-        assignmentFile: fileList[0].originFileObj,
-      };
-      setAssignments([...assignments, newAssignment]);
-      setAddModalVisible(false);
-      setFileList([]);
-    }).catch(info => {
-      console.log('Validate Failed:', info);
-    });
+      const formData = new FormData();
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      formData.append('course_type', values.course_type);
+      formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
+      formData.append('assignment_file', fileList[0].originFileObj);
+
+      const response = await fetch('https://lms.papersdock.com/assignments/create-assignment', {
+        method: 'POST',
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        message.success(data.message);
+        fetchAssignments();
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to add assignment', error);
+      message.error('Failed to add assignment');
+    }
+    setAddModalOpen(false);
+    setFileList([]);
   };
 
-  const handleConfirmEdit = () => {
-    form.validateFields().then(values => {
+  const handleConfirmEdit = async () => {
+    try {
+      const values = await form.validateFields();
       if (selectedAssignment) {
-        const updatedAssignment = {
-          ...selectedAssignment,
-          id: values.id,
-          title: values.title,
-          date: new Date().toISOString().split('T')[0],
-          deadline: values.deadline.format('YYYY-MM-DD'),
-          assignmentFile: fileList.length > 0 ? fileList[0].originFileObj : selectedAssignment.assignmentFile,
-        };
-        setAssignments(assignments.map(assignment =>
-          assignment.id === selectedAssignment.id ? updatedAssignment : assignment
-        ));
-        setEditModalVisible(false);
-        setSelectedAssignment(null);
-        setFileList([]);
+        const formData = new FormData();
+        formData.append('assignment_id', selectedAssignment.assignment_id);
+        formData.append('title', values.title);
+        formData.append('description', values.description);
+        formData.append('course_type', values.course_type);
+        formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
+        if (fileList.length > 0) {
+          formData.append('assignment_file', fileList[0].originFileObj);
+        }
+
+        const response = await fetch('https://lms.papersdock.com/assignments/update-assignment', {
+          method: 'POST',
+          headers: {
+            'accesstoken': `Bearer ${accessToken}`,
+            'x-api-key': 'lms_API',
+            'Access-Control-Allow-Origin': 'http://localhost:3000'
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        if (response.ok) {
+          message.success(data.message);
+          fetchAssignments();
+        } else {
+          message.error(data.message);
+        }
       }
-    }).catch(info => {
-      console.log('Validate Failed:', info);
-    });
+    } catch (error) {
+      console.error('Failed to edit assignment', error);
+      message.error('Failed to edit assignment');
+    }
+    setEditModalOpen(false);
+    setSelectedAssignment(null);
+    setFileList([]);
   };
 
   const handleUploadChange = ({ fileList }: any) => {
+    console.log(fileList);
     setFileList(fileList);
   };
 
   const handleViewAssignment = (assignment: Assignment) => {
-    setFileUrl(URL.createObjectURL(assignment.assignmentFile as File));
-    setViewModalVisible(true);
+    if (assignment.assignmentFile) {
+      setFileUrl(URL.createObjectURL(assignment.assignmentFile));
+    }
+    setViewModalOpen(true);
   };
 
   const columns = [
@@ -135,9 +221,9 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
       key: 'sno',
     },
     {
-      title: 'Id',
-      dataIndex: 'id',
-      key: 'id',
+      title: 'Assignment ID',
+      dataIndex: 'assignment_id',
+      key: 'assignment_id',
     },
     {
       title: 'Assignment Title',
@@ -186,7 +272,7 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Class {classId} - Assignment</h1>
+        <h1 className="text-3xl font-bold mb-8">Assignments</h1>
         <Button
           type="primary"
           className="mb-4"
@@ -195,28 +281,35 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
         >
           Add Assignment
         </Button>
-        <Table columns={columns} dataSource={assignments} rowKey="id" />
+        <Table columns={columns} dataSource={assignments} rowKey="assignment_id" />
 
         {/* Add Assignment Modal */}
         <Modal
           title="Add Assignment"
-          visible={isAddModalVisible}
+          open={isAddModalOpen}
           onOk={handleConfirmAdd}
-          onCancel={() => setAddModalVisible(false)}
+          onCancel={() => setAddModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
           <Form form={form} layout="vertical" name="add_assignment_form">
             <Form.Item
-              name="id"
-              label="Assignment ID"
-              rules={[{ required: true, message: 'Please input the assignment ID!' }]}
+              name="title"
+              label="Assignment Title"
+              rules={[{ required: true, message: 'Please input the assignment title!' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              name="title"
-              label="Assignment Title"
-              rules={[{ required: true, message: 'Please input the assignment title!' }]}
+              name="description"
+              label="Assignment Description"
+              rules={[{ required: true, message: 'Please input the assignment description!' }]}
+            >
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item
+              name="course_type"
+              label="Course Type"
+              rules={[{ required: true, message: 'Please input the course type!' }]}
             >
               <Input />
             </Form.Item>
@@ -246,23 +339,30 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
         {/* Edit Assignment Modal */}
         <Modal
           title="Edit Assignment"
-          visible={isEditModalVisible}
+          open={isEditModalOpen}
           onOk={handleConfirmEdit}
-          onCancel={() => setEditModalVisible(false)}
+          onCancel={() => setEditModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
           <Form form={form} layout="vertical" name="edit_assignment_form">
             <Form.Item
-              name="id"
-              label="Assignment ID"
-              rules={[{ required: true, message: 'Please input the assignment ID!' }]}
+              name="title"
+              label="Assignment Title"
+              rules={[{ required: true, message: 'Please input the assignment title!' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              name="title"
-              label="Assignment Title"
-              rules={[{ required: true, message: 'Please input the assignment title!' }]}
+              name="description"
+              label="Assignment Description"
+              rules={[{ required: true, message: 'Please input the assignment description!' }]}
+            >
+              <Input.TextArea />
+            </Form.Item>
+            <Form.Item
+              name="course_type"
+              label="Course Type"
+              rules={[{ required: true, message: 'Please input the course type!' }]}
             >
               <Input />
             </Form.Item>
@@ -276,7 +376,7 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
             <Form.Item
               name="assignmentFile"
               label="Upload Assignment File"
-              rules={[{ required: true, message: 'Please upload an assignment file!' }]}
+              rules={[{ required: false, message: 'Please upload an assignment file!' }]}
             >
               <Upload
                 beforeUpload={() => false}
@@ -292,9 +392,9 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
         {/* Delete Assignment Modal */}
         <Modal
           title="Confirm Deletion"
-          visible={isDeleteModalVisible}
+          open={isDeleteModalOpen}
           onOk={handleConfirmDelete}
-          onCancel={() => setDeleteModalVisible(false)}
+          onCancel={() => setDeleteModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
           <p>Do you want to delete this record?</p>
@@ -303,9 +403,9 @@ const CourseAssignments: React.FC<CoursePageProps> = ({ params }) => {
         {/* View Assignment Modal */}
         <Modal
           title="View Assignment"
-          visible={isViewModalVisible}
+          open={isViewModalOpen}
           footer={null}
-          onCancel={() => setViewModalVisible(false)}
+          onCancel={() => setViewModalOpen(false)}
         >
           {fileUrl && <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} />}
         </Modal>
