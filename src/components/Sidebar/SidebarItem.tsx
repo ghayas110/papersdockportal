@@ -24,7 +24,7 @@ const SidebarItem = ({ item, pageName, setPageName }: any) => {
 
   return (
     <>
-      <li>
+      <li  style={{listStyleType: "none"}} >
         <Link
           href={item.route}
           onClick={handleClick}
