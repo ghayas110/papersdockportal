@@ -44,6 +44,7 @@ const CourseAssignments: React.FC = () => {
         },
       });
       const data = await response.json();
+      console.log(data, "hdsajhasjkdhjashdjahjkadhs")
       if (response.ok) {
         setAssignments(data.data.map((assignment: any, index: number) => ({
           sno: index + 1,
@@ -124,16 +125,20 @@ const CourseAssignments: React.FC = () => {
   const handleConfirmAdd = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values, "values");
+      console.log(fileList[0].originFileObj, "filessss");
+
       if (fileList.length === 0) {
         message.error('Please upload an assignment file!');
         return;
       }
+
       const formData = new FormData();
       formData.append('title', values.title);
       formData.append('description', values.description);
       formData.append('course_type', values.course_type);
       formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
-      formData.append('assignment_file', fileList[0].originFileObj);
+      formData.append('assignment', fileList[0].originFileObj);
 
       const response = await fetch('https://lms.papersdock.com/assignments/create-assignment', {
         method: 'POST',
@@ -145,6 +150,7 @@ const CourseAssignments: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log(data); // Log the response data for more details
       if (response.ok) {
         message.success(data.message);
         fetchAssignments();
@@ -170,7 +176,7 @@ const CourseAssignments: React.FC = () => {
         formData.append('course_type', values.course_type);
         formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
         if (fileList.length > 0) {
-          formData.append('assignment_file', fileList[0].originFileObj);
+          formData.append('assignment', fileList[0].originFileObj);
         }
 
         const response = await fetch('https://lms.papersdock.com/assignments/update-assignment', {
@@ -202,10 +208,19 @@ const CourseAssignments: React.FC = () => {
     setFileList([]);
   };
 
-  const handleUploadChange = ({ fileList }: any) => {
-    console.log(fileList);
-    setFileList(fileList);
+
+  const handleUploadChange = (info: any) => {
+    if (info.file.status !== 'uploading') {
+      console.log(info.file, info.fileList);
+    }
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} file uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+    setFileList(info.fileList);
   };
+
 
   const handleViewAssignment = (assignment: Assignment) => {
     if (assignment.assignmentFile) {
