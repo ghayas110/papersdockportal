@@ -8,15 +8,22 @@ import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 interface Assignment {
-  sno: number;
   assignment_id: string;
   title: string;
-  date: string;
+  description: string;
   deadline: string;
-  assignmentFile?: File;
+  assignment_file: string;
+  course_type: string;
 }
 
-const CourseAssignments: React.FC = () => {
+interface AddAssignmentProps {
+  params: {
+    course_id: string;
+    course_type: string;
+  };
+}
+
+const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
   const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -25,15 +32,17 @@ const CourseAssignments: React.FC = () => {
   const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
-
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
+  const courseType = params.course_type.toUpperCase();
 
   useEffect(() => {
-    fetchAssignments();
-  }, []);
+    if (courseType) {
+      fetchAssignments();
+    }
+  }, [courseType]);
 
   const fetchAssignments = async () => {
     try {
@@ -44,15 +53,8 @@ const CourseAssignments: React.FC = () => {
         },
       });
       const data = await response.json();
-      console.log(data, "hdsajhasjkdhjashdjahjkadhs")
       if (response.ok) {
-        setAssignments(data.data.map((assignment: any, index: number) => ({
-          sno: index + 1,
-          assignment_id: assignment.assignment_id,
-          title: assignment.title,
-          date: new Date(assignment.created_at).toISOString().split('T')[0],
-          deadline: new Date(assignment.deadline).toISOString().split('T')[0],
-        })));
+        setAssignments(data.data.filter((assignment: any) => assignment.course_type === courseType));
       } else {
         message.error(data.message);
       }
@@ -74,18 +76,10 @@ const CourseAssignments: React.FC = () => {
     form.setFieldsValue({
       assignment_id: assignment.assignment_id,
       title: assignment.title,
+      description: assignment.description,
       deadline: moment(assignment.deadline),
     });
-    if (assignment.assignmentFile) {
-      setFileList([{
-        uid: '-1',
-        name: assignment.assignmentFile.name,
-        status: 'done',
-        url: URL.createObjectURL(assignment.assignmentFile),
-      }]);
-    } else {
-      setFileList([]);
-    }
+    setFileList([]);
     setEditModalOpen(true);
   };
 
@@ -125,20 +119,14 @@ const CourseAssignments: React.FC = () => {
   const handleConfirmAdd = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values, "values");
-      console.log(fileList[0].originFileObj, "filessss");
-
-      if (fileList.length === 0) {
-        message.error('Please upload an assignment file!');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('title', values.title);
       formData.append('description', values.description);
-      formData.append('course_type', values.course_type);
+      formData.append('course_type', courseType);
       formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
-      formData.append('assignment', fileList[0].originFileObj);
+      if (fileList.length > 0) {
+        formData.append('assignment', fileList[0].originFileObj);
+      }
 
       const response = await fetch('https://lms.papersdock.com/assignments/create-assignment', {
         method: 'POST',
@@ -150,7 +138,6 @@ const CourseAssignments: React.FC = () => {
       });
 
       const data = await response.json();
-      console.log(data); // Log the response data for more details
       if (response.ok) {
         message.success(data.message);
         fetchAssignments();
@@ -173,7 +160,7 @@ const CourseAssignments: React.FC = () => {
         formData.append('assignment_id', selectedAssignment.assignment_id);
         formData.append('title', values.title);
         formData.append('description', values.description);
-        formData.append('course_type', values.course_type);
+        formData.append('course_type', courseType);
         formData.append('deadline', values.deadline.format('YYYY-MM-DD'));
         if (fileList.length > 0) {
           formData.append('assignment', fileList[0].originFileObj);
@@ -184,14 +171,11 @@ const CourseAssignments: React.FC = () => {
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
             'x-api-key': 'lms_API',
-            'Access-Control-Allow-Origin': 'http://localhost:3000'
           },
           body: formData,
         });
 
         const data = await response.json();
-        console.log(data);
-
         if (response.ok) {
           message.success(data.message);
           fetchAssignments();
@@ -208,47 +192,30 @@ const CourseAssignments: React.FC = () => {
     setFileList([]);
   };
 
-
-  const handleUploadChange = (info: any) => {
-    if (info.file.status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-    setFileList(info.fileList);
+  const handleUploadChange = ({ fileList }: any) => {
+    setFileList(fileList);
   };
 
-
   const handleViewAssignment = (assignment: Assignment) => {
-    if (assignment.assignmentFile) {
-      setFileUrl(URL.createObjectURL(assignment.assignmentFile));
-    }
+    setPdfUrl(`https://lms.papersdock.com${assignment.assignment_file}`);
     setViewModalOpen(true);
   };
 
   const columns = [
-    {
-      title: 'SNO',
-      dataIndex: 'sno',
-      key: 'sno',
-    },
     {
       title: 'Assignment ID',
       dataIndex: 'assignment_id',
       key: 'assignment_id',
     },
     {
-      title: 'Assignment Title',
+      title: 'Title',
       dataIndex: 'title',
       key: 'title',
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
     },
     {
       title: 'Deadline',
@@ -257,7 +224,7 @@ const CourseAssignments: React.FC = () => {
     },
     {
       title: 'View Assignment',
-      key: 'assignmentFile',
+      key: 'assignment_file',
       render: (text: string, record: Assignment) => (
         <Button type="link" onClick={() => handleViewAssignment(record)}>View Assignment</Button>
       ),
@@ -287,7 +254,7 @@ const CourseAssignments: React.FC = () => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Assignments</h1>
+        <h1 className="text-3xl font-bold mb-8">Add Assignment</h1>
         <Button
           type="primary"
           className="mb-4"
@@ -322,13 +289,6 @@ const CourseAssignments: React.FC = () => {
               <Input.TextArea />
             </Form.Item>
             <Form.Item
-              name="course_type"
-              label="Course Type"
-              rules={[{ required: true, message: 'Please input the course type!' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
               name="deadline"
               label="Deadline"
               rules={[{ required: true, message: 'Please select the deadline!' }]}
@@ -336,7 +296,7 @@ const CourseAssignments: React.FC = () => {
               <DatePicker style={{ width: '100%' }} />
             </Form.Item>
             <Form.Item
-              name="assignmentFile"
+              name="assignment_file"
               label="Upload Assignment File"
               rules={[{ required: true, message: 'Please upload an assignment file!' }]}
             >
@@ -375,13 +335,6 @@ const CourseAssignments: React.FC = () => {
               <Input.TextArea />
             </Form.Item>
             <Form.Item
-              name="course_type"
-              label="Course Type"
-              rules={[{ required: true, message: 'Please input the course type!' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
               name="deadline"
               label="Deadline"
               rules={[{ required: true, message: 'Please select the deadline!' }]}
@@ -389,7 +342,7 @@ const CourseAssignments: React.FC = () => {
               <DatePicker style={{ width: '100%' }} />
             </Form.Item>
             <Form.Item
-              name="assignmentFile"
+              name="assignment_file"
               label="Upload Assignment File"
               rules={[{ required: false, message: 'Please upload an assignment file!' }]}
             >
@@ -422,11 +375,11 @@ const CourseAssignments: React.FC = () => {
           footer={null}
           onCancel={() => setViewModalOpen(false)}
         >
-          {fileUrl && <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} />}
+          {pdfUrl && <iframe src={pdfUrl} style={{ width: '100%', height: '500px' }} />}
         </Modal>
       </div>
     </DefaultLayout>
   );
 };
 
-export default CourseAssignments;
+export default AddAssignment;
