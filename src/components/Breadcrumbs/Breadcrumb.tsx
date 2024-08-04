@@ -1,24 +1,23 @@
-import Link from "next/link";
+import React from "react";
+
 interface BreadcrumbProps {
   pageName: string;
   course?: string;
 }
-const Breadcrumb = ({ pageName,course }: BreadcrumbProps) => {
-  return (
-    <div className="mb-6 flex flex-col h-20 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-        {pageName}
-      </h2>
 
-      <nav>
-        <ol className="flex items-center gap-20">
-          <li>
-         
-          </li>
-          <li className="font-medium text-primary">{course}</li>
-        </ol>
-      </nav>
-    </div>
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ pageName, course }) => {
+  return (
+    <nav className="bg-gray-200 dark:bg-gray-700 p-3 rounded-md w-full">
+      <ol className="list-reset flex">
+        <li>
+          <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Home</a>
+        </li>
+        <li><span className="mx-2 text-gray-500">/</span></li>
+        <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">{course}</a></li>
+        <li><span className="mx-2 text-gray-500">/</span></li>
+        <li className="text-gray-500">{pageName}</li>
+      </ol>
+    </nav>
   );
 };
 

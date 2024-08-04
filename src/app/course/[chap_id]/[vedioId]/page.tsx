@@ -19,7 +19,7 @@ interface Comment {
 }
 
 const VideoPage: React.FC<VideoPageProps> = ({ params }) => {
-  console.log(params.courseId, params.vedioId, "sss");
+  console.log(params, "sss");
 
   // Sample data for demonstration
   const courseData = {
