@@ -124,6 +124,10 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const handleConfirmAdd = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values, "valueueueueu")
+      console.log(courseType, "tutytyytytytyyt")
+      console.log(bgImageFileList[0].originFileObj, "bgbgbgbgbgbbg")
+      console.log(notesFileList[0].originFileObj, "mamamammamamamammama")
       const formData = new FormData();
       formData.append('note_title', values.note_title);
       formData.append('note_type', values.note_type);
@@ -135,7 +139,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
         formData.append('notes', notesFileList[0].originFileObj);
       }
 
-      const response = await fetch('https://lms.papersdock.com/notes/create-note', {
+      const response = await fetch('https://lms.papersdock.com/notes/create-notes', {
         method: 'POST',
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
@@ -176,7 +180,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
           formData.append('notes', notesFileList[0].originFileObj);
         }
 
-        const response = await fetch('https://lms.papersdock.com/notes/update-note', {
+        const response = await fetch('https://lms.papersdock.com/notes/update-notes', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
