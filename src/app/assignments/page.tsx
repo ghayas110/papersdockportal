@@ -2,18 +2,23 @@
 
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import React, { useState } from 'react';
-import { Table, Button, Upload, Tag } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Upload, Tag, message, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 interface Assignment {
   id: string;
+  assignment_id: string;
   courseId: string;
   courseName: string;
   assignmentName: string;
   questionFile: string;
   deadline: string;
-  obtainedMarks?: number; // Add optional obtainedMarks field
+  obtainedMarks?: number;
+  status?: string;
+  assignment_file: string;
+  submission_id: string | null;
 }
 
 interface AssignmentUploadPageProps {
@@ -24,40 +29,53 @@ interface AssignmentUploadPageProps {
 }
 
 const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) => {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
-  const [status, setStatus] = useState<{ [key: string]: string }>({});
   const [fileNames, setFileNames] = useState<{ [key: string]: string }>({});
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const userData = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data') || '{}') : null;
 
-  const assignments: Assignment[] = [
-    {
-      id: '1',
-      courseId: 'math101',
-      courseName: 'Mathematics',
-      assignmentName: 'Assignment 1: Algebra',
-      questionFile: 'https://example.com/questions1.pdf',
-      deadline: '2024-08-15',
-      obtainedMarks: undefined,
-    },
-    {
-      id: '2',
-      courseId: 'math101',
-      courseName: 'Mathematics',
-      assignmentName: 'Assignment 2: Geometry',
-      questionFile: 'https://example.com/questions2.pdf',
-      deadline: '2024-08-20',
-      obtainedMarks: undefined,
-    },
-    {
-      id: '3',
-      courseId: 'phys101',
-      courseName: 'Physics',
-      assignmentName: 'Assignment 1: Mechanics',
-      questionFile: 'https://example.com/questions3.pdf',
-      deadline: '2024-07-25',
-      obtainedMarks: undefined,
-    },
-    // Add more assignments as needed
-  ];
+  const accessToken = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments`, {
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+        },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        const filteredAssignments = data.data.filter((assignment: any) => assignment.course_type === userData.selected_course);
+        const fetchedAssignments = filteredAssignments.map((assignment: any) => ({
+          id: assignment.assignment_id,
+          assignment_id: assignment.assignment_id,
+          courseId: assignment.course_type,
+          courseName: assignment.course_type,
+          assignmentName: assignment.assignment_name,
+          questionFile: `https://lms.papersdock.com${assignment.assignment_file}`,
+          deadline: moment(assignment.deadline).format('YYYY-MM-DD'),
+          obtainedMarks: assignment.obtained_marks,
+          status: assignment.status,
+          assignment_file: assignment.assignment_file,
+          submission_id: assignment.submission_id,
+        }));
+        setAssignments(fetchedAssignments);
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to fetch assignments', error);
+      message.error('Failed to fetch assignments');
+    }
+  };
 
   const handleFileChange = (assignmentId: string, file: File | null) => {
     setUploadedFiles((prev) => ({ ...prev, [assignmentId]: file }));
@@ -66,35 +84,49 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
     }
   };
 
-  const handleFileUpload = (assignmentId: string) => {
+  const handleFileUpload = async (assignmentId: string) => {
     const uploadedFile = uploadedFiles[assignmentId];
     if (uploadedFile) {
-      console.log('File uploaded for assignment', assignmentId, ':', uploadedFile);
-      setStatus((prev) => ({ ...prev, [assignmentId]: 'submitted' }));
-      setUploadedFiles((prev) => ({ ...prev, [assignmentId]: null }));
+      const formData = new FormData();
+      formData.append('assignment_id', assignmentId);
+      formData.append('submitAssignment', uploadedFile);
+
+      try {
+        const response = await fetch('https://lms.papersdock.com/submission/submit-assignment', {
+          method: 'POST',
+          headers: {
+            'accesstoken': `Bearer ${accessToken}`,
+            'x-api-key': 'lms_API',
+          },
+          body: formData,
+        });
+        const data = await response.json();
+        if (response.ok) {
+          message.success(data.message);
+          setUploadedFiles((prev) => ({ ...prev, [assignmentId]: null }));
+          setFileNames((prev) => ({ ...prev, [assignmentId]: '' }));
+          fetchAssignments();
+        } else {
+          message.error(data.message);
+        }
+      } catch (error) {
+        console.error('Failed to submit assignment', error);
+        message.error('Failed to submit assignment');
+      }
     }
   };
 
-  const renderStatus = (assignmentId: string, deadline: string) => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    if (status[assignmentId] === 'marked') {
-      return <Tag color="yellow">Marked</Tag>;
-    }
-    if (status[assignmentId] === 'submitted') {
-      return <Tag color="green">Submitted</Tag>;
-    }
-    if (currentDate > deadline) {
-      return <Tag color="red">Not Submitted</Tag>;
-    }
-    return <Tag color="blue">Pending</Tag>;
+  const handleViewAssignment = (fileUrl: string) => {
+    setPdfUrl(`https://lms.papersdock.com${fileUrl}`);
+    setIsModalOpen(true);
   };
-
-  const groupedAssignments = assignments.reduce((acc, assignment) => {
-    (acc[assignment.courseId] = acc[assignment.courseId] || []).push(assignment);
-    return acc;
-  }, {} as { [key: string]: Assignment[] });
 
   const columns = (courseId: string) => [
+    {
+      title: 'AssignmentId',
+      dataIndex: 'assignment_Id',
+      key: 'assignment_Id',
+    },
     {
       title: 'Assignment Name',
       dataIndex: 'assignmentName',
@@ -117,13 +149,21 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
     {
       title: 'Status',
       key: 'status',
-      render: (text: string, record: Assignment) => renderStatus(record.id, record.deadline),
+      render: (text: string, record: Assignment) => (
+        <Tag color={record.status === 'Submitted' ? 'green' : 'blue'}>{record.status}</Tag>
+      ),
     },
     {
       title: 'Uploaded File',
       key: 'uploadedFile',
       render: (text: string, record: Assignment) => (
-        fileNames[record.id] ? fileNames[record.id] : 'No file uploaded'
+        record.submission_id ? (
+          <Button onClick={() => handleViewAssignment(record.assignment_file)} style={{ color: 'white', backgroundColor: 'black' }}>
+            View Assignment
+          </Button>
+        ) : (
+          fileNames[record.id] ? fileNames[record.id] : 'No file uploaded'
+        )
       ),
     },
     {
@@ -136,8 +176,11 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
             return false;
           }}
           showUploadList={false}
+          disabled={!!record.submission_id}
         >
-          <Button icon={<UploadOutlined />}>Select File</Button>
+          <Button icon={<UploadOutlined />} style={{ color: 'white', backgroundColor: 'black' }} disabled={!!record.submission_id}>
+            Select File
+          </Button>
         </Upload>
       ),
     },
@@ -146,10 +189,9 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       key: 'action',
       render: (text: string, record: Assignment) => (
         <Button
-          type="primary"
           onClick={() => handleFileUpload(record.id)}
-          disabled={!uploadedFiles[record.id]}
-          style={{ marginTop: '8px' }}
+          disabled={!uploadedFiles[record.id] || !!record.submission_id}
+          style={{ color: 'white', backgroundColor: 'black' }}
         >
           Submit
         </Button>
@@ -163,6 +205,11 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       ),
     },
   ];
+
+  const groupedAssignments = assignments.reduce((acc, assignment) => {
+    (acc[assignment.courseId] = acc[assignment.courseId] || []).push(assignment);
+    return acc;
+  }, {} as { [key: string]: Assignment[] });
 
   return (
     <DefaultLayout>
@@ -182,6 +229,20 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
           </div>
         ))}
       </div>
+
+      <Modal
+        title="View Assignment"
+        open={isModalOpen}
+        footer={null}
+        onCancel={() => setIsModalOpen(false)}
+        width="80%"
+        className="custom-modal"
+        style={{ zIndex: 100000000000 }}
+      >
+        {pdfUrl && (
+          <iframe src={pdfUrl} style={{ width: '100%', height: '600px' }} />
+        )}
+      </Modal>
     </DefaultLayout>
   );
 };

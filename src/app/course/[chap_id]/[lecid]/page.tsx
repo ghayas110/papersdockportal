@@ -1,0 +1,92 @@
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button, message } from 'antd';
+import DefaultLayout from '@/components/Layouts/DefaultLayout';
+import ReactPlayer from 'react-player';
+import { useParams } from 'next/navigation';
+
+interface Lecture {
+  lec_id: string;
+  chapter_id: string;
+  title: string;
+  duration: string;
+  file_type: string;
+  file_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface VideoViewProps {
+  params: {
+    chap_id: string;
+    lecid: string;
+  };
+}
+
+const VideoView: React.FC<VideoViewProps> = ({ params }) => {
+
+  const lec_id = parseInt(params.lecid);
+  console.log(params)
+
+  const [lecture, setLecture] = useState<Lecture | null>(null);
+
+  const accessToken = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    if (lec_id) {
+      fetchLecture();
+    }
+  }, [lec_id]);
+
+  const fetchLecture = async () => {
+    try {
+      const response = await fetch(`https://lms.papersdock.com/lectures/get-lecture-by-Id/${lec_id}`, {
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+        },
+      });
+      const data = await response.json();
+      console.log(data)
+      if (response.ok) {
+        setLecture(data.data);
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to fetch lecture', error);
+      message.error('Failed to fetch lecture');
+    }
+  };
+
+  return (
+    <DefaultLayout>
+      <div className="container mx-auto p-8">
+        {lecture ? (
+          <>
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold">{lecture.title}</h1>
+              <p>Lecture ID: {lecture.lec_id}</p>
+              <p>Duration: {lecture.duration} minutes</p>
+              <p>Created At: {new Date(lecture.created_at).toLocaleDateString()}</p>
+            </div>
+            <div className="video-wrapper">
+              <ReactPlayer
+                url={`https://lms.papersdock.com${lecture.file_url}`}
+                controls
+                width="100%"
+                height="100%"
+              />
+            </div>
+          </>
+        ) : (
+          <p>Loading lecture information...</p>
+        )}
+      </div>
+    </DefaultLayout>
+  );
+};
+
+export default VideoView;

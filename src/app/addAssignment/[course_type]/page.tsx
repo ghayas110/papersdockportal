@@ -9,7 +9,7 @@ import moment from 'moment';
 
 interface Assignment {
   assignment_id: string;
-  title: string;
+  assignment_name: string;
   description: string;
   deadline: string;
   assignment_file: string;
@@ -24,6 +24,7 @@ interface AddAssignmentProps {
 }
 
 const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
+  console.log(params)
   const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -34,11 +35,14 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
   const [fileList, setFileList] = useState<any[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [form] = Form.useForm();
-
+  const userData = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data') || '{}') : null;
   const accessToken = localStorage.getItem('access_token');
-  const courseType = params.course_type.toUpperCase();
+  const courseType = params.course_type
+// console.log(userData.id, "userData")
+console.log(courseType, "courseType")
 
   useEffect(() => {
+    console.log("here")
     if (courseType) {
       fetchAssignments();
     }
@@ -46,13 +50,15 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
 
   const fetchAssignments = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/assignments/get-all-assignments', {
+      console.log("here")
+      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
         },
       });
       const data = await response.json();
+      console.log(data,"aaa")
       if (response.ok) {
         setAssignments(data.data.filter((assignment: any) => assignment.course_type === courseType));
       } else {
@@ -74,8 +80,8 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
   const handleEditAssignment = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
     form.setFieldsValue({
-      assignment_id: assignment.assignment_id,
-      title: assignment.title,
+      assignmentid: assignment.assignment_id,
+      title: assignment.assignment_name,
       description: assignment.description,
       deadline: moment(assignment.deadline),
     });
@@ -157,7 +163,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
       const values = await form.validateFields();
       if (selectedAssignment) {
         const formData = new FormData();
-        formData.append('assignment_id', selectedAssignment.assignment_id);
+        formData.append('assignmentid', selectedAssignment.assignment_id);
         formData.append('title', values.title);
         formData.append('description', values.description);
         formData.append('course_type', courseType);
@@ -209,8 +215,8 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
     },
     {
       title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
+      dataIndex: 'assignment_name',
+      key: 'assignment_name',
     },
     {
       title: 'Description',
@@ -221,6 +227,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
       title: 'Deadline',
       dataIndex: 'deadline',
       key: 'deadline',
+      render: (text: string) => moment(text).format('YYYY-MM-DD'),
     },
     {
       title: 'View Assignment',
@@ -255,6 +262,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
     <DefaultLayout>
       <div className="container mx-auto p-8">
         <h1 className="text-3xl font-bold mb-8">Add Assignment</h1>
+        
         <Button
           type="primary"
           className="mb-4"
@@ -263,7 +271,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
         >
           Add Assignment
         </Button>
-        <Table columns={columns} dataSource={assignments} rowKey="assignment_id" />
+        <Table columns={columns} dataSource={assignments} rowKey="assignmentid" />
 
         {/* Add Assignment Modal */}
         <Modal

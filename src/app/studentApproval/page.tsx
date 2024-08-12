@@ -6,24 +6,38 @@ import { Button } from 'antd';
 const StudentApproval: React.FC = () => {
   const router = useRouter();
 
-  const handleNavigation = (classId: string) => {
-    router.push(`/studentApproval/${classId}`);
+  const handleNavigation = (course_type: string) => {
+    console.log(course_type);
+    if(course_type === 'as'){
+      router.push(`/studentApproval/AS`);
+    }else if(course_type === 'a2'){
+      router.push(`/studentApproval/OS`);
+    }else if(course_type === 'composite'){
+      router.push(`/studentApproval/Both`);
+    }
+  
   };
 
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Student Approval </h1>
+        <h1 className="text-3xl font-bold mb-8">Student Approvval </h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
-          {['A1', 'A2', 'Composite'].map((classId) => (
-            <div
-              key={classId}
-              className="p-6 bg-gray-200 rounded-lg shadow-lg text-center hover:bg-gray-300 cursor-pointer"
-              onClick={() => handleNavigation(classId.toLowerCase())}
-            >
-              <h2 className="text-2xl font-bold mb-4">{classId}</h2>
-           
+          {['AS', 'A2', 'Composite'].map((course_type) => (
+            <div className="rounded-sm border border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark"  onClick={() => handleNavigation(course_type.toLowerCase())}>
+    
+
+            <div className="mt-4 flex items-end justify-between">
+              <div>
+                <h4 className="text-title-md font-bold text-black dark:text-white">
+                  {course_type}
+                </h4>
+            
+              </div>
+      
+             
             </div>
+          </div>
           ))}
         </div>
       </div>

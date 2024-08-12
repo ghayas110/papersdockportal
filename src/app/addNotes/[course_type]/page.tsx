@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Table, Button, Space, Modal, Form, Input, Upload, message } from 'antd';
+import { Table, Button, Space, Modal, Form, Input, Upload, Select, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
@@ -40,7 +40,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const courseType = params.course_type.toUpperCase();
+  const courseType = params.course_type;
 
   useEffect(() => {
     if (courseType) {
@@ -96,7 +96,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const handleConfirmDelete = async () => {
     if (selectedNote) {
       try {
-        const response = await fetch('https://lms.papersdock.com/notes/delete-note', {
+        const response = await fetch('https://lms.papersdock.com/notes/delete-notes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -124,10 +124,6 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const handleConfirmAdd = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values, "valueueueueu")
-      console.log(courseType, "tutytyytytytyyt")
-      console.log(bgImageFileList[0].originFileObj, "bgbgbgbgbgbbg")
-      console.log(notesFileList[0].originFileObj, "mamamammamamamammama")
       const formData = new FormData();
       formData.append('note_title', values.note_title);
       formData.append('note_type', values.note_type);
@@ -321,7 +317,10 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
               label="Note Type"
               rules={[{ required: true, message: 'Please select the note type!' }]}
             >
-              <Input />
+              <Select>
+                <Select.Option value="dark_mode">Dark Mode</Select.Option>
+                <Select.Option value="light_mode">Light Mode</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               name="note_bg_image"
@@ -373,7 +372,10 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
               label="Note Type"
               rules={[{ required: true, message: 'Please select the note type!' }]}
             >
-              <Input />
+              <Select>
+                <Select.Option value="dark_mode">Dark Mode</Select.Option>
+                <Select.Option value="light_mode">Light Mode</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               name="note_bg_image"

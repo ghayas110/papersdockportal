@@ -131,7 +131,8 @@ const SignUp: React.FC = () => {
                 >
                   <Select placeholder="Select your course">
                     <Option value="AS">AS</Option>
-                    <Option value="A2">A2</Option>
+                    <Option value="OS">A2</Option>
+                    <Option value="Both">Composite</Option>
                   </Select>
                 </Form.Item>
 

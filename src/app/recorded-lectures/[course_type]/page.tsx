@@ -33,7 +33,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const courseType = (params.course_type).toUpperCase();
+  const courseType = (params.course_type)
 
 
   useEffect(() => {

@@ -20,8 +20,8 @@ const CourseView: React.FC = () => {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
     if (userData.selected_course) {
-      setSelectedCourse(userData.selected_course.toUpperCase());
-      fetchChapters(userData.selected_course.toUpperCase());
+      setSelectedCourse(userData.selected_course);
+      fetchChapters(userData.selected_course);
     }
   }, []);
 

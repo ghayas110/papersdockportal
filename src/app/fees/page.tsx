@@ -1,7 +1,7 @@
 "use client"; // Mark this file as a Client Component
 
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Tag, Upload, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
@@ -11,15 +11,19 @@ interface FeeData {
   month: string;
   year: string;
   status: 'unpaid' | 'paid' | 'waiting approval';
-  courseId: string;
-  courseName: string;
   amount: number;
   invoiceFile?: File;
 }
 
-const feeData: FeeData[] = [
-  { id: '1', sno: 1, month: 'January', year: '2024', status: 'unpaid', courseId: 'math101', courseName: 'Mathematics', amount: 100 },
-  { id: '2', sno: 2, month: 'February', year: '2024', status: 'paid', courseId: 'phys101', courseName: 'Physics', amount: 120 },
+const getCurrentMonthYear = () => {
+  const date = new Date();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear().toString();
+  return { month, year };
+};
+
+const initialFeeData: FeeData[] = [
+  { id: '1', sno: 1, ...getCurrentMonthYear(), status: 'unpaid', amount: 100 },
   // Add more fee records as needed
 ];
 
@@ -37,11 +41,19 @@ const getStatusTag = (status: 'unpaid' | 'paid' | 'waiting approval') => {
 };
 
 const StudentFeePage: React.FC = () => {
+  const [feeData, setFeeData] = useState(initialFeeData);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isViewInvoiceVisible, setIsViewInvoiceVisible] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeData | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
-  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null);
+  const accessToken = localStorage.getItem('access_token');
+  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+
+  useEffect(() => {
+    if (userData.is_fee_paid_flag === 'Y') {
+      const updatedData = feeData.map(fee => ({ ...fee, status: 'paid' }));
+      setFeeData(updatedData);
+    }
+  }, [userData]);
 
   const showModal = (fee: FeeData) => {
     setSelectedFee(fee);
@@ -49,13 +61,39 @@ const StudentFeePage: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
     if (selectedFee && fileList.length > 0) {
-      selectedFee.status = 'waiting approval';
-      selectedFee.invoiceFile = fileList[0].originFileObj;
-      message.success('Payment submitted and awaiting approval');
-      setSelectedFee(null);
-      setIsModalVisible(false);
+      try {
+        const formData = new FormData();
+        formData.append('month', selectedFee.month);
+        formData.append('year', selectedFee.year);
+        formData.append('invoice', fileList[0].originFileObj);
+
+        const response = await fetch('https://lms.papersdock.com/fees/insert-fee-invoice', {
+          method: 'POST',
+          headers: {
+            'accesstoken': `Bearer ${accessToken}`,
+            'x-api-key': 'lms_API',
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          message.success('Payment submitted and awaiting approval');
+          const updatedData = feeData.map(fee =>
+            fee.id === selectedFee.id ? { ...fee, status: 'waiting approval' } : fee
+          );
+          setFeeData(updatedData);
+          setIsModalVisible(false);
+        } else {
+          message.error(data.message || 'Failed to submit payment');
+        }
+      } catch (error) {
+        console.error('Payment submission failed:', error);
+        message.error('Failed to submit payment');
+      }
     } else {
       message.error('Please upload an invoice file!');
     }
@@ -63,16 +101,6 @@ const StudentFeePage: React.FC = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-  };
-
-  const handleViewInvoice = (fee: FeeData) => {
-    if (fee.invoiceFile) {
-      const fileUrl = URL.createObjectURL(fee.invoiceFile);
-      setInvoiceUrl(fileUrl);
-      setIsViewInvoiceVisible(true);
-    } else {
-      message.error('No invoice available to view.');
-    }
   };
 
   const handleUploadChange = ({ fileList }: any) => {
@@ -102,23 +130,10 @@ const StudentFeePage: React.FC = () => {
       render: (text: string, record: FeeData) => getStatusTag(record.status),
     },
     {
-      title: 'Course ID',
-      dataIndex: 'courseId',
-      key: 'courseId',
-    },
-    {
-      title: 'Course Name',
-      dataIndex: 'courseName',
-      key: 'courseName',
-    },
-    {
-      title: 'Invoice',
-      key: 'invoice',
-      render: (text: string, record: FeeData) => (
-        <Button type="link" onClick={() => handleViewInvoice(record)}>
-          View Invoice
-        </Button>
-      ),
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (text: number) => `$${text.toFixed(2)}`,
     },
     {
       title: 'Action',
@@ -129,9 +144,9 @@ const StudentFeePage: React.FC = () => {
           onClick={() => showModal(record)}
           disabled={record.status === 'paid' || record.status === 'waiting approval'}
           style={{
-            backgroundColor: record.status === 'unpaid' ? 'whitesmoke' : 'rgb(28, 36, 52)',
-            borderColor: record.status === 'unpaid' ? 'whitesmoke' : 'rgb(28, 36, 52)',
-            color: record.status === 'unpaid' ? 'black' : 'white',
+            backgroundColor: record.status === 'unpaid' ? 'black' : 'rgb(28, 36, 52)',
+            borderColor: record.status === 'unpaid' ? 'black' : 'rgb(28, 36, 52)',
+            color: 'white',
           }}
         >
           Pay
@@ -165,11 +180,9 @@ const StudentFeePage: React.FC = () => {
         >
           {selectedFee && (
             <>
-              <p>Course: {selectedFee.courseName}</p>
               <p>Month: {selectedFee.month}</p>
               <p>Year: {selectedFee.year}</p>
               <p>Amount: ${selectedFee.amount}</p>
-              <p>Description: Fees for {selectedFee.month} {selectedFee.year} for the course {selectedFee.courseName}</p>
               <Upload
                 beforeUpload={() => false}
                 onChange={handleUploadChange}
@@ -179,16 +192,6 @@ const StudentFeePage: React.FC = () => {
               </Upload>
             </>
           )}
-        </Modal>
-
-        {/* View Invoice Modal */}
-        <Modal
-          title="View Invoice"
-          visible={isViewInvoiceVisible}
-          footer={null}
-          onCancel={() => setIsViewInvoiceVisible(false)}
-        >
-          {invoiceUrl && <iframe src={invoiceUrl} style={{ width: '100%', height: '500px' }} />}
         </Modal>
       </div>
     </DefaultLayout>

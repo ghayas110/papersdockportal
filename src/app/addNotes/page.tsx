@@ -7,23 +7,37 @@ const AddNotes: React.FC = () => {
   const router = useRouter();
 
   const handleNavigation = (course_type: string) => {
-    router.push(`/addNotes/${course_type}`);
+    console.log(course_type);
+    if(course_type === 'as'){
+      router.push(`/addNotes/AS`);
+    }else if(course_type === 'a2'){
+      router.push(`/addNotes/OS`);
+    }else if(course_type === 'composite'){
+      router.push(`/addNotes/Both`);
+    }
+  
   };
 
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Add Notes </h1>
+        <h1 className="text-3xl font-bold mb-8">Notes</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
           {['AS', 'A2', 'Composite'].map((course_type) => (
-            <div
-              key={course_type}
-              className="p-6 bg-gray-200 rounded-lg shadow-lg text-center hover:bg-gray-300 cursor-pointer"
-              onClick={() => handleNavigation(course_type.toLowerCase())}
-            >
-              <h2 className="text-2xl font-bold mb-4">{course_type}</h2>
+                 <div className="rounded-sm border border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark"  onClick={() => handleNavigation(course_type.toLowerCase())}>
+    
+
+                 <div className="mt-4 flex items-end justify-between">
+                   <div>
+                     <h4 className="text-title-md font-bold text-black dark:text-white">
+                       {course_type}
+                     </h4>
+                 
+                   </div>
            
-            </div>
+                  
+                 </div>
+               </div>
           ))}
         </div>
       </div>

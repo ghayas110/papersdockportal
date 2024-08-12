@@ -1,61 +1,88 @@
-// pages/feeApproval.tsx
 "use client"; // Mark this file as a Client Component
 
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Tag, Select, message } from 'antd';
 
 interface FeeData {
   id: string;
   sno: number;
   studentId: string;
+  month: string;
+  year: string;
   studentName: string;
   status: 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected';
-  invoiceFile?: File;
+  invoiceFile?: string;
 }
 
-const initialFeeData: FeeData[] = [
-  { id: '1', sno: 1, studentId: 'student1', studentName: 'John Doe', status: 'waiting approval', invoiceFile: new File([""], "invoice1.pdf") },
-  { id: '2', sno: 2, studentId: 'student2', studentName: 'Jane Smith', status: 'paid', invoiceFile: new File([""], "invoice2.pdf") },
-  // Add more fee records as needed
-];
-
-const getStatusTag = (status: 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected') => {
-  switch (status) {
-    case 'unpaid':
-      return <Tag color="red" style={{ borderRadius: '8px' }}>Unpaid</Tag>;
-    case 'paid':
-      return <Tag color="green" style={{ borderRadius: '8px' }}>Paid</Tag>;
-    case 'waiting approval':
-      return <Tag color="orange" style={{ borderRadius: '8px' }}>Waiting Approval</Tag>;
-    case 'approved':
-      return <Tag color="blue" style={{ borderRadius: '8px' }}>Approved</Tag>;
-    case 'rejected':
-      return <Tag color="gray" style={{ borderRadius: '8px' }}>Rejected</Tag>;
-    default:
-      return null;
-  }
-};
-
 const FeeApprovalPage: React.FC = () => {
-  const [feeData, setFeeData] = useState(initialFeeData);
+  const [feeData, setFeeData] = useState<FeeData[]>([]);
   const [isViewInvoiceVisible, setIsViewInvoiceVisible] = useState(false);
   const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
 
-  const handleStatusChange = (id: string, value: string) => {
-    const updatedData = feeData.map(fee => {
-      if (fee.id === id) {
-        return { ...fee, status: value as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected' };
+  const accessToken = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    fetchFeeData();
+  }, []);
+
+  const fetchFeeData = async () => {
+    try {
+      const response = await fetch('https://lms.papersdock.com/fees/get-all-fee-invoice', {
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+        },
+      });
+      const data = await response.json();
+      console.log(data)
+      if (response.ok) {
+        const formattedData = data.data.map((fee: any, index: number) => ({
+          id: fee.fee_id || index.toString(),
+          sno: index + 1,
+          studentId: fee.student_id.toString(),
+          studentName: fee.name,
+          month: fee.month,
+          year: fee.year,
+          status: fee.fee_status.toLowerCase() as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected',
+          invoiceFile: fee.invoice_file ? `https://lms.papersdock.com${fee.invoice_file}` : undefined,
+        }));
+        setFeeData(formattedData);
+      } else {
+        message.error(data.message);
       }
-      return fee;
-    });
-    setFeeData(updatedData);
-    message.success(`Fee status updated to ${value}`);
+    } catch (error) {
+      console.error('Failed to fetch fee data', error);
+      message.error('Failed to fetch fee data');
+    }
   };
 
-  const handleViewInvoice = (file: File) => {
-    if (file) {
-      const fileUrl = "https://marketplace.canva.com/EAETpJ0lmjg/2/0/1131w/canva-fashion-invoice-zvoLwRH8Wys.jpg"
+  const handleStatusChange = async (id: string, value: string) => {
+    try {
+      const response = await fetch('https://lms.papersdock.com/fees/approve-fee-invoice', {
+        method: 'POST',
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fee_id: id, fee_status: value }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setFeeData(feeData.map(fee => fee.id === id ? { ...fee, status: value as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected' } : fee));
+        message.success(data.message);
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to update fee status', error);
+      message.error('Failed to update fee status');
+    }
+  };
+
+  const handleViewInvoice = (fileUrl?: string) => {
+    if (fileUrl) {
       setSelectedInvoiceUrl(fileUrl);
       setIsViewInvoiceVisible(true);
     } else {
@@ -73,6 +100,16 @@ const FeeApprovalPage: React.FC = () => {
       title: 'Student ID',
       dataIndex: 'studentId',
       key: 'studentId',
+    },
+    {
+      title: 'Month',
+      dataIndex: 'month',
+      key: 'month',
+    },
+    {
+      title: 'Year',
+      dataIndex: 'year',
+      key: 'year',
     },
     {
       title: 'Student Name',
@@ -101,7 +138,7 @@ const FeeApprovalPage: React.FC = () => {
       title: 'Action',
       key: 'action',
       render: (text: string, record: FeeData) => (
-        <Button type="link" onClick={() => handleViewInvoice(record.invoiceFile!)}>
+        <Button type="link" onClick={() => handleViewInvoice(record.invoiceFile)}>
           View Invoice
         </Button>
       ),
@@ -117,7 +154,7 @@ const FeeApprovalPage: React.FC = () => {
         {/* View Invoice Modal */}
         <Modal
           title="View Invoice"
-          visible={isViewInvoiceVisible}
+          open={isViewInvoiceVisible}
           footer={null}
           onCancel={() => setIsViewInvoiceVisible(false)}
         >
