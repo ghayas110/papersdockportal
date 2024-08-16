@@ -4,12 +4,30 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Form, Input, Button, message } from "antd";
+import axios from "axios"
+import StripeCheckout, { Token } from "react-stripe-checkout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [product, setproduct] = useState({
+    "price": 1000,
+    "name": "adsada"
+  })
+
+  const onToken = async (token: any) => {
+    try {
+      console.log(token, "SADasdasdasda")
+      const response = await axios.post(`https://lms.papersdock.com/checkout`, { token, product });
+      console.log(response, "sdadasdasdad");
+      message.success("Payment successful!");
+    } catch (error) {
+      console.error("Payment error:", error);
+      message.error("Payment failed, please try again.");
+    }
+  };
 
   const handleSubmit = async (values: { email: string; password: string }) => {
     setLoading(true);
@@ -32,12 +50,12 @@ const Login: React.FC = () => {
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("user_data", JSON.stringify(data.data));
         message.success("Successfully logged in!");
-        if(data?.data?.user_type === "admin"){
+        if (data?.data?.user_type === "admin") {
           router.push("/Dashboard");
-        }else{
+        } else {
           router.push("/lectures");
         }
-      
+
       } else {
         message.error(data.message || "Login failed!");
       }
@@ -48,9 +66,16 @@ const Login: React.FC = () => {
   };
 
   return (
-   <>
-  
+    <>
+
       <Breadcrumb pageName="" />
+      <StripeCheckout
+        amount={product.price} // Assuming the amount is in cents
+        name={product.name}
+        stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
+        token={onToken}
+        locale="auto"
+      />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -99,7 +124,7 @@ const Login: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item>
-                  <Button  htmlType="submit" loading={loading}>
+                  <Button htmlType="submit" loading={loading}>
                     Login
                   </Button>
                 </Form.Item>
@@ -108,7 +133,7 @@ const Login: React.FC = () => {
           </div>
         </div>
       </div>
-      </>
+    </>
   );
 };
 
