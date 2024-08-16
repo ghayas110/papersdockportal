@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { Form, Input, Button, message } from "antd";
 import axios from "axios"
 import StripeCheckout, { Token } from "react-stripe-checkout";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
+
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [product, setproduct] = useState({
     "price": 1000,
-    "name": "adsada"
+    "name": "adsada",
+     "email":"ghayas110@gmail.com"
   })
 
   const onToken = async (token: any) => {
@@ -68,14 +68,8 @@ const Login: React.FC = () => {
   return (
     <>
 
-      <Breadcrumb pageName="" />
-      <StripeCheckout
-        amount={product.price} // Assuming the amount is in cents
-        name={product.name}
-        stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
-        token={onToken}
-        locale="auto"
-      />
+     
+     
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">

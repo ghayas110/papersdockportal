@@ -48,7 +48,7 @@ const CourseView: React.FC = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Course View" />
+
       <h3 className="text-title-md2 font-bold text-black dark:text-white">
         {selectedCourse} Chapters
       </h3>

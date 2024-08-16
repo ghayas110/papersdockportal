@@ -6,6 +6,9 @@ import { Button, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import ReactPlayer from 'react-player';
 import { useParams } from 'next/navigation';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+
+
 
 interface Lecture {
   lec_id: string;
@@ -28,6 +31,7 @@ interface VideoViewProps {
 const VideoView: React.FC<VideoViewProps> = ({ params }) => {
 
   const lec_id = parseInt(params.lecid);
+  const router = useRouter();
   console.log(params)
 
   const [lecture, setLecture] = useState<Lecture | null>(null);
@@ -67,10 +71,12 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
         {lecture ? (
           <>
             <div className="mb-8">
-              <h1 className="text-3xl font-bold">{lecture.title}</h1>
-              <p>Lecture ID: {lecture.lec_id}</p>
-              <p>Duration: {lecture.duration} minutes</p>
-              <p>Created At: {new Date(lecture.created_at).toLocaleDateString()}</p>
+            <div className="flex justify-between">
+        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
+        <h1 className="text-3xl font-bold mb-8">{lecture.title}</h1>
+        <p>.</p>
+        </div>
+             
             </div>
             <div className="video-wrapper">
               <ReactPlayer

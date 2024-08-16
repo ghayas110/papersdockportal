@@ -51,7 +51,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
         },
       });
       const data = await response.json();
-
+console.log(data)
       if (response.ok) {
         const filteredAssignments = data.data.filter((assignment: any) => assignment.course_type === userData.selected_course);
         const fetchedAssignments = filteredAssignments.map((assignment: any) => ({
@@ -124,8 +124,8 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
   const columns = (courseId: string) => [
     {
       title: 'AssignmentId',
-      dataIndex: 'assignment_Id',
-      key: 'assignment_Id',
+      dataIndex: 'id',
+      key: 'id',
     },
     {
       title: 'Assignment Name',
@@ -213,7 +213,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Assignments" course="Assignments" />
+     
       <div className="container mx-auto p-8">
         {Object.keys(groupedAssignments).map((courseId) => (
           <div key={courseId} className="mb-8 w-full">

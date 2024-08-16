@@ -1,27 +1,52 @@
 "use client";
 import dynamic from "next/dynamic";
-import React from "react";
-import ChartOne from "../../components/Charts/ChartOne";
-import ChartTwo from "../../components/Charts/ChartTwo";
-import ChatCard from "../../components/Chat/ChatCard";
-import TableOne from "../../components/Tables/TableOne";
-import CardDataStats from "../../components/CardDataStats";
+import React, { useState, useEffect } from "react";
 import DefaultLayout from "../../components/Layouts/DefaultLayout";
-
-const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
-  ssr: false,
-});
-
-const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
-  ssr: false,
-});
+import CardDataStats from "../../components/CardDataStats";
 
 const ECommerce: React.FC = () => {
+  const [dashboardData, setDashboardData] = useState({
+    total_students: 0,
+    total_courses: 0,
+    total_paid_students: 0,
+    total_unpaid_students: 0,
+  });
+
+  const accessToken = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch("https://lms.papersdock.com/users/get-dashboard-counts", {
+          headers: {
+            "accesstoken": `Bearer ${accessToken}`,
+            "x-api-key": "lms_API",
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setDashboardData({
+            total_students: data.total_students || 0,
+            total_courses: data.total_courses || 0,
+            total_paid_students: data.total_paid_students || 0,
+            total_unpaid_students: data.total_unpaid_students || 0,
+          });
+        } else {
+          console.error("Failed to fetch dashboard counts:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard counts:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [accessToken]);
+
   return (
- 
-     <DefaultLayout>
+    <DefaultLayout>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-        <CardDataStats title="Total Students" total="50" rate="" >
+        <CardDataStats title="Total Students" total={dashboardData.total_students.toString()} rate="">
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -40,7 +65,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Courses" total="4" rate="" >
+        <CardDataStats title="Total Courses" total={dashboardData.total_courses.toString()} rate="">
           <svg
             className="fill-primary dark:fill-white"
             width="20"
@@ -63,7 +88,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Student Fee Paid" total="23" rate="" >
+        <CardDataStats title="Student Fee Paid" total={dashboardData.total_paid_students.toString()} rate="">
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -82,7 +107,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Student UnPaid" total="30" rate="" >
+        <CardDataStats title="Student UnPaid" total={dashboardData.total_unpaid_students.toString()} rate="">
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -108,14 +133,11 @@ const ECommerce: React.FC = () => {
       </div>
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-    
         <div className="col-span-12 xl:col-span-8">
-         
+          {/* Additional content goes here */}
         </div>
-      
       </div>
-      </DefaultLayout>
-
+    </DefaultLayout>
   );
 };
 

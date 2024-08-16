@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { Table, Button, message } from 'antd';
 import moment from 'moment';
+import Image from 'next/image';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 interface Lecture {
   lec_id: string;
@@ -124,11 +126,19 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
+      <div className="flex justify-between">
+        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
+        <h1 className="text-3xl font-bold mb-8">Lectures</h1>
+        <p>.</p>
+        </div>
         {chapter && (
           <div className="mb-8">
-            <img
+            <Image
               src={`https://lms.papersdock.com${chapter.chapter_image_url}`}
               alt={chapter.chapter_name}
+              width={100}
+              height={100}
+              style={{objectFit:"contain"}}
               className="w-full rounded-lg mb-4 h-90 contain"
             />
             <div className="flex justify-between items-center">

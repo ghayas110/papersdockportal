@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Table, Button, Space, Modal, Form, Input, Upload, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
-import { UploadOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 interface Lecture {
@@ -248,7 +248,11 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8">Add Lecture</h1>
+      <div className="flex justify-between">
+        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
+        <h1 className="text-3xl font-bold mb-8">Add Lectures</h1>
+        <p>.</p>
+        </div>
         <Button
           type="primary"
           className="mb-4"

@@ -68,7 +68,6 @@ const NotesView: React.FC = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Notes" course={selectedCourse} />
       <h3 className="text-title-md2 font-bold text-black dark:text-white">
         {selectedCourse} Notes
       </h3>

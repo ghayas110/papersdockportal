@@ -33,6 +33,7 @@ const SignUp: React.FC = () => {
     formData.append("email", values.email);
     formData.append("password", values.password);
     formData.append("selected_course", values.selectedCourse);
+    formData.append("contact", values.contact);
     if (file) {
       formData.append("file", file);
     }
@@ -59,7 +60,7 @@ const SignUp: React.FC = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="" />
+    
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -107,7 +108,13 @@ const SignUp: React.FC = () => {
                 >
                   <Input placeholder="Enter your email" />
                 </Form.Item>
-
+                <Form.Item
+                  name="contact"
+                  label="Contact"
+                  rules={[{ required: true, message: 'Please enter your mobile number'  }]}
+                >
+                  <Input placeholder="Enter your mobile number" />
+                </Form.Item>
                 <Form.Item
                   name="password"
                   label="Password"

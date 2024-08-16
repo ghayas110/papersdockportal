@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Table, Button, Space, Modal, Form, Input, Upload, DatePicker, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
-import { UploadOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 interface Assignment {
   assignment_id: string;
-  assignment_name: string;
+  title: string;
   description: string;
   deadline: string;
   assignment_file: string;
@@ -51,7 +51,7 @@ console.log(courseType, "courseType")
   const fetchAssignments = async () => {
     try {
       console.log("here")
-      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments`, {
+      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments-admin`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -81,7 +81,7 @@ console.log(courseType, "courseType")
     setSelectedAssignment(assignment);
     form.setFieldsValue({
       assignmentid: assignment.assignment_id,
-      title: assignment.assignment_name,
+      title: assignment.title,
       description: assignment.description,
       deadline: moment(assignment.deadline),
     });
@@ -163,7 +163,7 @@ console.log(courseType, "courseType")
       const values = await form.validateFields();
       if (selectedAssignment) {
         const formData = new FormData();
-        formData.append('assignmentid', selectedAssignment.assignment_id);
+        formData.append('assignment_id', selectedAssignment.assignment_id);
         formData.append('title', values.title);
         formData.append('description', values.description);
         formData.append('course_type', courseType);
@@ -182,6 +182,7 @@ console.log(courseType, "courseType")
         });
 
         const data = await response.json();
+        console.log(data)
         if (response.ok) {
           message.success(data.message);
           fetchAssignments();
@@ -215,8 +216,8 @@ console.log(courseType, "courseType")
     },
     {
       title: 'Title',
-      dataIndex: 'assignment_name',
-      key: 'assignment_name',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
       title: 'Description',
@@ -261,8 +262,11 @@ console.log(courseType, "courseType")
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
+      <div className="flex justify-between">
+        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
         <h1 className="text-3xl font-bold mb-8">Add Assignment</h1>
-        
+        <p>.</p>
+        </div>
         <Button
           type="primary"
           className="mb-4"
