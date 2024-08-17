@@ -1,11 +1,12 @@
 "use client"; // Mark this file as a Client Component
 
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, Button, Modal, Tag, Upload, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import StripeCheckout from 'react-stripe-checkout';
 import axios from 'axios';
+import Invoice from './Invoice';
 
 interface FeeData {
   fee_id: number | null;
@@ -35,6 +36,9 @@ const StudentFeePage: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeData | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [invoiceData, setInvoiceData] = useState<any>(null);
+  const invoiceRef = useRef<HTMLDivElement>(null)
   const accessToken = localStorage.getItem('access_token');
 
   useEffect(() => {
@@ -43,7 +47,7 @@ const StudentFeePage: React.FC = () => {
   const [product, setproduct] = useState({
     "price": 1000,
     "name": "adsada",
-     "email":"ghayas110@gmail.com"
+    "email": "ghayas110@gmail.com"
   })
 
   const fetchFeeData = async () => {
@@ -111,13 +115,55 @@ const StudentFeePage: React.FC = () => {
   };
   const onToken = async (token: any) => {
     try {
-      console.log(token, "SADasdasdasda")
-      const response = await axios.post(`https://lms.papersdock.com/checkout`, { token, product });
-      console.log(response, "sdadasdasdad");
-      message.success("Payment successful!");
+      const response = await axios.post('https://lms.papersdock.com/checkout', { token, product });
+      if (response.status === 200) {
+        const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
+        const date = new Date().toLocaleDateString(); // Current date
+
+        setInvoiceData({
+          amount: product.price,
+          email: product.email,
+          name: product.name,
+          date,
+          invoiceNumber,
+        });
+
+        message.success('Payment successful!');
+        setPaymentSuccess(true);
+      } else {
+        message.error('Payment failed, please try again.');
+      }
     } catch (error) {
-      console.error("Payment error:", error);
-      message.error("Payment failed, please try again.");
+      console.error('Payment error:', error);
+      message.error('Payment failed, please try again.');
+    }
+  };
+
+  const handlePrint = () => {
+    const printContents = invoiceRef.current?.innerHTML;
+
+    if (printContents) {
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
+      printWindow?.document.write(`
+        <html>
+          <head>
+            <title>Invoice</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .invoice-container { padding: 20px; border: 1px solid #ddd; }
+            </style>
+          </head>
+          <body>
+            <div class="invoice-container">${printContents}</div>
+          </body>
+        </html>
+      `);
+      printWindow?.document.close();
+      printWindow?.focus();
+      printWindow?.print();
+      printWindow?.close();
+      setPaymentSuccess(false)
+      setInvoiceData(null)
     }
   };
   const handleCancel = () => {
@@ -190,13 +236,23 @@ const StudentFeePage: React.FC = () => {
           onCancel={handleCancel}
           footer={[
             <StripeCheckout
-        amount={product.price} // Assuming the amount is in cents
-        name={product.name}
-        email={product.email}
-        stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
-        token={onToken}
-        locale="auto"
-      />,
+              amount={product.price} // Assuming the amount is in cents
+              name={product.name}
+              email={product.email}
+              stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
+              token={onToken}
+              locale="auto"
+            />,
+            paymentSuccess && (
+              <Button
+                key="print"
+                type="primary"
+                onClick={handlePrint}
+                style={{ backgroundColor: 'black', borderColor: 'black' }}
+              >
+                Print Invoice
+              </Button>
+            ),
             <Button
               key="submit"
               type="primary"
@@ -234,6 +290,17 @@ const StudentFeePage: React.FC = () => {
             </>
           )}
         </Modal>
+        {paymentSuccess && invoiceData && (
+          <div ref={invoiceRef}>
+            <Invoice
+              amount={invoiceData.amount}
+              email={invoiceData.email}
+              name={invoiceData.name}
+              date={invoiceData.date}
+              invoiceNumber={invoiceData.invoiceNumber}
+            />
+          </div>
+        )}
       </div>
     </DefaultLayout>
   );

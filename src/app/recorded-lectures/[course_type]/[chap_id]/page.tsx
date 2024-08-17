@@ -6,6 +6,7 @@ import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { Progress } from 'antd';
 
 interface Lecture {
   lec_id: string;
@@ -32,11 +33,16 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+
+
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
   const chapterId = parseInt(params.chap_id)
-  console.log(chapterId,params)
+  console.log(chapterId, params)
 
   useEffect(() => {
     if (chapterId) {
@@ -116,48 +122,87 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   };
 
   const handleConfirmAdd = async () => {
+    setIsLoading(true);
+    setIsDisabled(true);
     try {
       const values = await form.validateFields();
-      const formData = new FormData();
+      const file = fileList[0]?.originFileObj;
 
-      formData.append('chapter_id', (chapterId).toString());
-      formData.append('title', values.title);
-      if (fileList.length > 0) {
+      if (!file) {
+        message.error('Please upload a lecture file!');
+        return;
+      }
+
+      const CHUNK_SIZE = 1024 * 1024; // 1 MB
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const chapter_id = chapterId.toString();
+      const title = values.title;
+      const fileName = file.name.split('.');
+      const fileNameExtension = fileName[fileName.length - 1];
+
+      let uploadedChunks = 0;
+
+      for (let chunkNumber = 1; chunkNumber <= totalChunks; chunkNumber++) {
+        const start = (chunkNumber - 1) * CHUNK_SIZE;
+        const end = Math.min(file.size, start + CHUNK_SIZE);
+        const chunk = file.slice(start, end);
+        const formData = new FormData();
+
+        formData.append('lecture', chunk);
+        formData.append('chunkNumber', chunkNumber.toString());
+        formData.append('totalChunks', totalChunks.toString());
+        formData.append('fileName', file.name);
+        formData.append('chapter_id', chapter_id);
+        formData.append('title', title);
+        formData.append('file_extension', fileNameExtension);
         formData.append('file_type', 'video');
-        formData.append('lecture', fileList[0].originFileObj);
+
+        try {
+          const response = await fetch('https://lms.papersdock.com/lectures/create-lecture', {
+            method: 'POST',
+            headers: {
+              'accesstoken': `Bearer ${accessToken}`,
+              'x-api-key': 'lms_API',
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || 'Upload failed');
+          }
+
+          // Update progress for each chunk
+          uploadedChunks++;
+          const progressPercent = Math.round((uploadedChunks / totalChunks) * 100);
+          console.log(uploadedChunks, totalChunks, progressPercent, "dasdasdasdasd")
+          setUploadProgress(progressPercent);
+        } catch (error) {
+          message.error(`Failed to upload chunk ${chunkNumber}. Please try again.`);
+          return;
+        }
       }
 
-      const response = await fetch('https://lms.papersdock.com/lectures/create-lecture', {
-        method: 'POST',
-        headers: {
-          'accesstoken': `Bearer ${accessToken}`,
-          'x-api-key': 'lms_API',
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        message.success(data.message);
-        fetchLectures();
-      } else {
-        message.error(data.message);
-      }
+      message.success('File uploaded successfully!');
+      fetchLectures();
     } catch (error) {
-      console.error('Failed to add lecture', error);
       message.error('Failed to add lecture');
+    } finally {
+      setIsLoading(false);
+      setIsDisabled(false);
+      setAddModalOpen(false);
+      setFileList([]);
+      setUploadProgress(100); // Ensure progress reaches 100%
     }
-    setAddModalOpen(false);
-    setFileList([]);
   };
-
   const handleConfirmEdit = async () => {
     try {
       const values = await form.validateFields();
       if (selectedLecture) {
         const formData = new FormData();
         formData.append('lec_id', selectedLecture.lec_id);
-         formData.append('chapter_id', (chapterId).toString());
+        formData.append('chapter_id', (chapterId).toString());
         formData.append('title', values.title);
         if (fileList.length > 0) {
           formData.append('file_type', 'video');
@@ -192,6 +237,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
 
   const handleUploadChange = ({ fileList }: any) => {
     setFileList(fileList);
+    setUploadProgress(0); // Reset the progress when a new file is selected
   };
 
   const handleViewLecture = (lecture: Lecture) => {
@@ -248,10 +294,10 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-      <div className="flex justify-between">
-        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold mb-8">Add Lectures</h1>
-        <p>.</p>
+        <div className="flex justify-between">
+          <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
+          <h1 className="text-3xl font-bold mb-8">Add Lectures</h1>
+          <p>.</p>
         </div>
         <Button
           type="primary"
@@ -269,7 +315,11 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           open={isAddModalOpen}
           onOk={handleConfirmAdd}
           onCancel={() => setAddModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          okButtonProps={{
+            disabled: isDisabled, // Disable OK button
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+          }}
+          cancelButtonProps={{ disabled: isDisabled }}
         >
           <Form form={form} layout="vertical" name="add_lecture_form">
             <Form.Item
@@ -293,6 +343,9 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
               </Upload>
             </Form.Item>
           </Form>
+          {uploadProgress > 0 && (
+            <Progress percent={uploadProgress} status="active" />
+          )}
         </Modal>
 
         {/* Edit Lecture Modal */}
@@ -335,7 +388,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           onCancel={() => setDeleteModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
-          <p>Do you want to delete this record?</p>
+          <p>Do you want to delete handleconf record?</p>
         </Modal>
 
         {/* View Lecture Modal */}
