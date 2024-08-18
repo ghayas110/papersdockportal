@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Form, Input, Button, message } from "antd";
 import axios from "axios"
 import StripeCheckout, { Token } from "react-stripe-checkout";
+import Image from "next/image";
 
 
 const Login: React.FC = () => {
@@ -70,34 +71,31 @@ const Login: React.FC = () => {
 
      
      
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center">
+<div className="rounded-sm border border-stroke bg-white shadow-default h-screen dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-wrap items-center justify-center h-screen">
           <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="px-26 py-17.5 text-center">
-              <Link className="mb-5.5 inline-block bg-black dark:bg-transparent" href="/">
-                <img
-                  className="hidden dark:block"
+            <div className="px-26 py-17.5 text-center justify-center ">
+            <Link className="mb-5.5 inline-block bg-black dark:bg-transparent" href="/">
+               
+                <Image
+                
                   src={"/images/logo/logo1.png"}
                   alt="Logo"
                   width={176}
-                  height={10}
-                />
-                <img
-                  className="dark:hidden"
-                  src={"/images/logo/logo1.png"}
-                  alt="Logo"
-                  width={176}
-                  height={10}
+                  height={32}
                 />
               </Link>
-              <p className="xl:px-10">Get Professional Services For Best Future</p>
+
+            
+            
             </div>
           </div>
 
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
+          
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Login to PapersDock
+                Sign In to PapersDock
               </h2>
 
               <Form onFinish={handleSubmit}>

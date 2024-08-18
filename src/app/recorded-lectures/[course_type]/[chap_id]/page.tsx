@@ -274,12 +274,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       key: 'action',
       render: (text: string, record: Lecture) => (
         <Space size="middle">
-          <Button
-            onClick={() => handleEditLecture(record)}
-            style={{ backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)', color: 'white' }}
-          >
-            Edit
-          </Button>
+         
           <Button
             onClick={() => handleDeleteLecture(record)}
             style={{ color: 'red', borderColor: 'rgb(28, 36, 52)' }}
