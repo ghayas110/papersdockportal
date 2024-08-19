@@ -166,9 +166,6 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
           style={{ width: 150 }}
           onChange={(value) => handleStatusChange(record.id, value)}
         >
-          <Select.Option value="unpaid">Unpaid</Select.Option>
-          <Select.Option value="paid">Paid</Select.Option>
-          <Select.Option value="waiting approval">Waiting Approval</Select.Option>
           <Select.Option value="approved">Approved</Select.Option>
           <Select.Option value="rejected">Rejected</Select.Option>
         </Select>
