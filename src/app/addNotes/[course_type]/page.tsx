@@ -58,7 +58,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(data.data.filter((note: any) => note.course_type === courseType));
+        setNotes(data.data);
       } else {
         message.error(data.message);
       }
