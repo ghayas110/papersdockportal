@@ -35,9 +35,8 @@ const CourseView: React.FC = () => {
         },
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
-   setChapters(data.data)
+        setChapters(data.data);
       } else {
         message.error(data.message);
       }
@@ -47,23 +46,37 @@ const CourseView: React.FC = () => {
     }
   };
 
+  // Group chapters by course_type
+  const groupedChapters = chapters.reduce((acc: { [key: string]: Chapter[] }, chapter) => {
+    if (!acc[chapter.course_type]) {
+      acc[chapter.course_type] = [];
+    }
+    acc[chapter.course_type].push(chapter);
+    return acc;
+  }, {});
+
   return (
     <DefaultLayout>
-
       <h3 className="text-title-md2 font-bold text-black dark:text-white">
-        {selectedCourse} Chapters
+        {selectedCourse=="Both"? "Composite": selectedCourse == "OS"? "A2": "AS"} Chapters
       </h3>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-        {chapters.map((chapter) => (
-          <CourseCard 
-            key={chapter.chap_id}
-            courseId={chapter.chap_id.toString()}
-            image={`https://lms.papersdock.com${chapter.chapter_image_url}`}
-            title={chapter.chapter_name}
-            instructor={selectedCourse || ""}
-          />
-        ))}
-      </div>
+      {/* Iterate over each course_type group and render the chapters */}
+      {Object.keys(groupedChapters).map((courseType) => (
+        <div key={courseType}>
+          <h1 className="text-lg font-bold mb-4">{courseType}</h1>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+            {groupedChapters[courseType].map((chapter) => (
+              <CourseCard
+                key={chapter.chap_id}
+                courseId={chapter.chap_id.toString()}
+                image={`https://lms.papersdock.com${chapter.chapter_image_url}`}
+                title={chapter.chapter_name}
+                instructor={selectedCourse || ""}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
       <div className="flex flex-col gap-10"></div>
     </DefaultLayout>
   );

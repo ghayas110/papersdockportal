@@ -60,7 +60,7 @@ console.log(courseType, "courseType")
       const data = await response.json();
       console.log(data,"aaa")
       if (response.ok) {
-        setAssignments(data.data.filter((assignment: any) => assignment.course_type === courseType));
+        setAssignments(data.data);
       } else {
         message.error(data.message);
       }

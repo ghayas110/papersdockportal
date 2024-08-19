@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Button, Modal, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
 import NotesCard from '@/components/NotesCard/page';
 
 const { TabPane } = Tabs;
@@ -43,7 +42,7 @@ const NotesView: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(data.data)
+        setNotes(data.data);
       } else {
         message.error(data.message);
       }
@@ -66,41 +65,60 @@ const NotesView: React.FC = () => {
     setSelectedNote(null);
   };
 
+  // Group notes by course_type
+  const groupedNotes = notes.reduce((acc: { [key: string]: Note[] }, note) => {
+    if (!acc[note.course_type]) {
+      acc[note.course_type] = [];
+    }
+    acc[note.course_type].push(note);
+    return acc;
+  }, {});
+
   return (
     <DefaultLayout>
       <h3 className="text-title-md2 font-bold text-black dark:text-white">
         {selectedCourse} Notes
       </h3>
-      <Tabs defaultActiveKey="dark_mode">
-        <TabPane tab="Dark Mode" key="dark_mode">
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-            {notes.filter(note => note.note_type === 'dark_mode').map((note) => (
-              <NotesCard
-                key={note.note_id}
-                notesId={note.note_id}
-                image={`https://lms.papersdock.com${note.note_bg_image}`}
-                title={note.note_title}
-                viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
-                downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
-              />
-            ))}
-          </div>
-        </TabPane>
-        <TabPane tab="Light Mode" key="light_mode">
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-            {notes.filter(note => note.note_type === 'light_mode').map((note) => (
-              <NotesCard
-                key={note.note_id}
-                notesId={note.note_id}
-                image={`https://lms.papersdock.com${note.note_bg_image}`}
-                title={note.note_title}
-                viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
-                downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
-              />
-            ))}
-          </div>
-        </TabPane>
-      </Tabs>
+
+      {Object.keys(groupedNotes).map((courseType) => (
+        <div key={courseType}>
+          <h2 className="text-xl font-bold mb-4">{courseType}</h2>
+          <Tabs defaultActiveKey="dark_mode">
+            <TabPane tab="Dark Mode" key="dark_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'dark_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+            <TabPane tab="Light Mode" key="light_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'light_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+          </Tabs>
+        </div>
+      ))}
 
       <Modal
         title="View Note"
