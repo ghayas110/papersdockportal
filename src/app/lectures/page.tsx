@@ -35,8 +35,9 @@ const CourseView: React.FC = () => {
         },
       });
       const data = await response.json();
+      console.log(data);
       if (response.ok) {
-        setChapters(data.data.filter((chapter: Chapter) => chapter.course_type === courseType));
+   setChapters(data.data)
       } else {
         message.error(data.message);
       }

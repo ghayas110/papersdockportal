@@ -19,7 +19,7 @@ const CourseCard: React.FC<CourseCardProps> = ({courseId, image, title, instruct
     <div className="px-6 py-4">
       <div className="font-bold text-xl mb-2">{title}</div>
       <p className="text-gray-700 text-base">Course ID: {courseId}</p>
-      <p className="text-gray-700 text-base">Instructor: {instructor}</p>
+
     </div>
   </div>
   </Link>

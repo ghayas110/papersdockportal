@@ -43,7 +43,7 @@ const NotesView: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(data.data.filter((note: any) => note.course_type === selectedCourse));
+        setNotes(data.data)
       } else {
         message.error(data.message);
       }

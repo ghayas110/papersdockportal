@@ -32,6 +32,8 @@ const getStatusTag = (status: 'Approved' | 'Pending') => {
 };
 
 const StudentFeePage: React.FC = () => {
+  const user = JSON.parse(localStorage.getItem('user_data') || '{}');
+  console.log(user, "user")
   const [feeData, setFeeData] = useState<FeeData[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeData | null>(null);
@@ -45,9 +47,9 @@ const StudentFeePage: React.FC = () => {
     fetchFeeData();
   }, [selectedFee]);
   const [product, setproduct] = useState({
-    "price": 1000,
-    "name": "adsada",
-    "email": "ghayas110@gmail.com"
+    "price": user.selected_course === "Both" ? 3200 : 1600,
+    "name": `${user?.name}`,
+    "email": `${user?.email}`
   })
 
   const fetchFeeData = async () => {

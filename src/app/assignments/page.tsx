@@ -53,7 +53,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
       const data = await response.json();
 console.log(data)
       if (response.ok) {
-        const filteredAssignments = data.data.filter((assignment: any) => assignment.course_type === userData.selected_course);
+        const filteredAssignments = data.data
         const fetchedAssignments = filteredAssignments.map((assignment: any) => ({
           id: assignment.assignment_id,
           assignment_id: assignment.assignment_id,
@@ -231,14 +231,15 @@ console.log(data)
       </div>
 
       <Modal
-        title="View Assignment"
-        open={isModalOpen}
-        footer={null}
-        onCancel={() => setIsModalOpen(false)}
-        width="80%"
-        className="custom-modal"
-        style={{ zIndex: 100000000000 }}
-      >
+  title="View Assignment"
+  open={isModalOpen}
+  footer={null}
+  onCancel={() => setIsModalOpen(false)}
+  width="80%"
+  className="custom-modal"
+  bodyStyle={{ padding: 0, margin: 0 }}
+  style={{ zIndex: 91050 }} // Ensure zIndex is high enough
+>
         {pdfUrl && (
           <iframe src={pdfUrl} style={{ width: '100%', height: '600px' }} />
         )}

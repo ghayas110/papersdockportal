@@ -9,7 +9,18 @@
         @apply relative z-1 bg-whiten font-satoshi text-base font-normal text-body;
     }
 }
-
+.custom-modal .ant-modal {
+    z-index: 10000 !important; /* Ensure the modal container has a high z-index */
+  }
+  
+  .custom-modal .ant-modal-content {
+    z-index: 10001 !important; /* Ensure modal content has an even higher z-index */
+  }
+  
+  .custom-modal .ant-modal-mask {
+    z-index: 9999 !important; /* Ensure the modal backdrop stays behind the modal */
+  }
+  
 @layer components {
 }
 
