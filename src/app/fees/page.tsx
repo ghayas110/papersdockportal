@@ -238,6 +238,7 @@ const StudentFeePage: React.FC = () => {
           onCancel={handleCancel}
           footer={[
             <StripeCheckout
+              key="stripe"
               amount={product.price} // Assuming the amount is in cents
               name={product.name}
               email={product.email}
