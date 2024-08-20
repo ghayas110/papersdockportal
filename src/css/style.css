@@ -248,6 +248,13 @@ input[type="search"]::-webkit-search-cancel-button {
     background-repeat: no-repeat;
     background-size: 20px;
 }
+.StripeCheckout{
+    background: black !important;
+    margin-right: 10px;
+}
+.StripeCheckout span{
+    background-image: none !important;
+}
 
 [x-cloak] {
     display: none !important;

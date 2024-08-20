@@ -24,25 +24,24 @@ interface AddAssignmentProps {
 }
 
 const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
-  console.log(params)
   const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setViewModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [form] = Form.useForm();
-  const userData = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data') || '{}') : null;
+
   const accessToken = localStorage.getItem('access_token');
-  const courseType = params.course_type
-// console.log(userData.id, "userData")
-console.log(courseType, "courseType")
+  const courseType = params.course_type;
 
   useEffect(() => {
-    console.log("here")
     if (courseType) {
       fetchAssignments();
     }
@@ -50,15 +49,13 @@ console.log(courseType, "courseType")
 
   const fetchAssignments = async () => {
     try {
-      console.log("here")
-      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments-admin`, {
+      const response = await fetch('https://lms.papersdock.com/assignments/get-all-assignments-admin', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
         },
       });
       const data = await response.json();
-      console.log(data,"aaa")
       if (response.ok) {
         setAssignments(data.data);
       } else {
@@ -80,12 +77,18 @@ console.log(courseType, "courseType")
   const handleEditAssignment = (assignment: Assignment) => {
     setSelectedAssignment(assignment);
     form.setFieldsValue({
-      assignmentid: assignment.assignment_id,
       title: assignment.title,
       description: assignment.description,
       deadline: moment(assignment.deadline),
     });
-    setFileList([]);
+
+    setFileList([{
+      uid: '-1',
+      name: assignment.assignment_file.split('/').pop(),
+      status: 'done',
+      url: `https://lms.papersdock.com${assignment.assignment_file}`,
+    }]);
+
     setEditModalOpen(true);
   };
 
@@ -95,6 +98,7 @@ console.log(courseType, "courseType")
   };
 
   const handleConfirmDelete = async () => {
+    setIsDeleteLoading(true);
     if (selectedAssignment) {
       try {
         const response = await fetch('https://lms.papersdock.com/assignments/delete-assignment', {
@@ -119,10 +123,12 @@ console.log(courseType, "courseType")
       }
       setDeleteModalOpen(false);
       setSelectedAssignment(null);
+      setIsDeleteLoading(false);
     }
   };
 
   const handleConfirmAdd = async () => {
+    setIsLoading(true);
     try {
       const values = await form.validateFields();
       const formData = new FormData();
@@ -154,11 +160,13 @@ console.log(courseType, "courseType")
       console.error('Failed to add assignment', error);
       message.error('Failed to add assignment');
     }
+    setIsLoading(false);
     setAddModalOpen(false);
     setFileList([]);
   };
 
   const handleConfirmEdit = async () => {
+    setIsEditLoading(true);
     try {
       const values = await form.validateFields();
       if (selectedAssignment) {
@@ -182,7 +190,6 @@ console.log(courseType, "courseType")
         });
 
         const data = await response.json();
-        console.log(data)
         if (response.ok) {
           message.success(data.message);
           fetchAssignments();
@@ -194,6 +201,7 @@ console.log(courseType, "courseType")
       console.error('Failed to edit assignment', error);
       message.error('Failed to edit assignment');
     }
+    setIsEditLoading(false);
     setEditModalOpen(false);
     setSelectedAssignment(null);
     setFileList([]);
@@ -262,10 +270,10 @@ console.log(courseType, "courseType")
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-      <div className="flex justify-between">
-        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold mb-8">Add Assignment</h1>
-        <p>.</p>
+        <div className="flex justify-between">
+          <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
+          <h1 className="text-3xl font-bold mb-8">Add Assignment</h1>
+          <p>.</p>
         </div>
         <Button
           type="primary"
@@ -275,7 +283,7 @@ console.log(courseType, "courseType")
         >
           Add Assignment
         </Button>
-        <Table columns={columns} dataSource={assignments} rowKey="assignmentid" />
+        <Table columns={columns} dataSource={assignments} rowKey="assignment_id" />
 
         {/* Add Assignment Modal */}
         <Modal
@@ -283,7 +291,11 @@ console.log(courseType, "courseType")
           open={isAddModalOpen}
           onOk={handleConfirmAdd}
           onCancel={() => setAddModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isLoading}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isLoading,
+          }}
         >
           <Form form={form} layout="vertical" name="add_assignment_form">
             <Form.Item
@@ -329,7 +341,11 @@ console.log(courseType, "courseType")
           open={isEditModalOpen}
           onOk={handleConfirmEdit}
           onCancel={() => setEditModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isEditLoading}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isEditLoading,
+          }}
         >
           <Form form={form} layout="vertical" name="edit_assignment_form">
             <Form.Item
@@ -374,8 +390,12 @@ console.log(courseType, "courseType")
           title="Confirm Deletion"
           open={isDeleteModalOpen}
           onOk={handleConfirmDelete}
+          confirmLoading={isDeleteLoading}
           onCancel={() => setDeleteModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isDeleteLoading,
+          }}
         >
           <p>Do you want to delete this record?</p>
         </Modal>

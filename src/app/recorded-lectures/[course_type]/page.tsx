@@ -1,4 +1,3 @@
-// pages/add-course.tsx
 "use client";
 
 import { useRouter } from 'next/navigation';
@@ -27,14 +26,16 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setViewModalOpen] = useState(false);
+  const [isAddLoading, setAddLoading] = useState(false);
+  const [isEditLoading, setEditLoading] = useState(false);
+  const [isDeleteLoading, setDeleteLoading] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const courseType = (params.course_type)
-
+  const courseType = params.course_type;
 
   useEffect(() => {
     if (courseType) {
@@ -51,9 +52,8 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
         },
       });
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
-        setChapters(courseType!="Both"?data.data.filter((chapter: any) => chapter.course_type === courseType):data.data);
+        setChapters(courseType !== "Both" ? data.data.filter((chapter: any) => chapter.course_type === courseType) : data.data);
       } else {
         message.error(data.message);
       }
@@ -75,7 +75,15 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     form.setFieldsValue({
       chapter_name: chapter.chapter_name,
     });
-    setFileList([]);
+
+    // Set the existing image to fileList
+    setFileList([{
+      uid: '-1', // A unique identifier
+      name: chapter.chapter_image_url.split('/').pop(), // Image file name
+      status: 'done', // Set the status to done to show the image in preview
+      url: `https://lms.papersdock.com${chapter.chapter_image_url}`, // Full URL of the image
+    }]);
+
     setEditModalOpen(true);
   };
 
@@ -86,6 +94,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
 
   const handleConfirmDelete = async () => {
     if (selectedChapter) {
+      setDeleteLoading(true);
       try {
         const response = await fetch('https://lms.papersdock.com/chapters/delete-chapter', {
           method: 'POST',
@@ -107,6 +116,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
         console.error('Failed to delete chapter', error);
         message.error('Failed to delete chapter');
       }
+      setDeleteLoading(false);
       setDeleteModalOpen(false);
       setSelectedChapter(null);
     }
@@ -115,6 +125,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   const handleConfirmAdd = async () => {
     try {
       const values = await form.validateFields();
+      setAddLoading(true);
       const formData = new FormData();
       formData.append('course_type', courseType);
       formData.append('chapter_name', values.chapter_name);
@@ -142,6 +153,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
       console.error('Failed to add chapter', error);
       message.error('Failed to add chapter');
     }
+    setAddLoading(false);
     setAddModalOpen(false);
     setFileList([]);
   };
@@ -150,19 +162,21 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     try {
       const values = await form.validateFields();
       if (selectedChapter) {
+        setEditLoading(true);
         const formData = new FormData();
         formData.append('chap_id', selectedChapter.chap_id);
         formData.append('course_type', courseType);
         formData.append('chapter_name', values.chapter_name);
-    
+
+        if (fileList.length > 0) {
           formData.append('chapter-image', fileList[0].originFileObj);
-      
+        }
+
         const response = await fetch('https://lms.papersdock.com/chapters/update-chapter', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
             'x-api-key': 'lms_API',
-            'Access-Control-Allow-Origin': 'http://localhost:3000'
           },
           body: formData,
         });
@@ -179,6 +193,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
       console.error('Failed to edit chapter', error);
       message.error('Failed to edit chapter');
     }
+    setEditLoading(false);
     setEditModalOpen(false);
     setSelectedChapter(null);
     setFileList([]);
@@ -242,10 +257,10 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-      <div className="flex justify-between">
-        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold mb-8">Add Course</h1>
-        <p>.</p>
+        <div className="flex justify-between">
+          <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
+          <h1 className="text-3xl font-bold mb-8">Add Course</h1>
+          <p>.</p>
         </div>
         <Button
           type="primary"
@@ -263,6 +278,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
           open={isAddModalOpen}
           onOk={handleConfirmAdd}
           onCancel={() => setAddModalOpen(false)}
+          confirmLoading={isAddLoading}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
           <Form form={form} layout="vertical" name="add_chapter_form">
@@ -282,6 +298,10 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
                 beforeUpload={() => false}
                 onChange={handleUploadChange}
                 fileList={fileList}
+                listType="picture"
+                onPreview={file => {
+                  window.open(file.url || file.thumbUrl, '_blank');
+                }}
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
@@ -294,6 +314,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
           title="Edit Chapter"
           open={isEditModalOpen}
           onOk={handleConfirmEdit}
+          confirmLoading={isEditLoading}
           onCancel={() => setEditModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >
@@ -314,6 +335,10 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
                 beforeUpload={() => false}
                 onChange={handleUploadChange}
                 fileList={fileList}
+                listType="picture"
+                onPreview={file => {
+                  window.open(file.url || file.thumbUrl, '_blank');
+                }}
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
@@ -326,6 +351,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
           title="Confirm Deletion"
           open={isDeleteModalOpen}
           onOk={handleConfirmDelete}
+          confirmLoading={isDeleteLoading}
           onCancel={() => setDeleteModalOpen(false)}
           okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
         >

@@ -175,6 +175,7 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
           onChange={(e) => handleMarksChange(record.submission_id || '', e.target.value)}
           placeholder="Enter marks"
           style={{ width: '100px' }}
+          disabled={record.obtained_marks != ''}
         />
       ),
     },
@@ -184,8 +185,9 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
       render: (text: string, record: Assignment) => (
         <Button
           onClick={() => handleMarksSubmit(record.submission_id || '')}
-          disabled={!obtainedMarks[record.submission_id || '']}
+         
           style={{ color: 'white', backgroundColor: 'black' }}
+          disabled={record.obtained_marks != ''}
         >
           Submit
         </Button>

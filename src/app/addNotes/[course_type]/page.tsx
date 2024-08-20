@@ -32,6 +32,9 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isViewNoteModalOpen, setViewNoteModalOpen] = useState(false);
   const [isViewImageModalOpen, setViewImageModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [bgImageFileList, setBgImageFileList] = useState<any[]>([]);
   const [notesFileList, setNotesFileList] = useState<any[]>([]);
@@ -79,12 +82,25 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const handleEditNote = (note: Note) => {
     setSelectedNote(note);
     form.setFieldsValue({
-      note_id: note.note_id,
       note_title: note.note_title,
       note_type: note.note_type,
     });
-    setBgImageFileList([]);
-    setNotesFileList([]);
+
+    // Pre-populate the image and notes files in the file lists
+    setBgImageFileList([{
+      uid: '-1',
+      name: note.note_bg_image.split('/').pop(),
+      status: 'done',
+      url: `https://lms.papersdock.com${note.note_bg_image}`,
+    }]);
+
+    setNotesFileList([{
+      uid: '-2',
+      name: note.note_type === 'dark_mode' ? note.dark_note_attachment.split('/').pop() : note.light_note_attachment.split('/').pop(),
+      status: 'done',
+      url: `https://lms.papersdock.com${note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment}`,
+    }]);
+
     setEditModalOpen(true);
   };
 
@@ -94,6 +110,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   };
 
   const handleConfirmDelete = async () => {
+    setIsDeleteLoading(true);
     if (selectedNote) {
       try {
         const response = await fetch('https://lms.papersdock.com/notes/delete-notes', {
@@ -118,10 +135,12 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       }
       setDeleteModalOpen(false);
       setSelectedNote(null);
+      setIsDeleteLoading(false);
     }
   };
 
   const handleConfirmAdd = async () => {
+    setIsLoading(true);
     try {
       const values = await form.validateFields();
       const formData = new FormData();
@@ -155,12 +174,14 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       console.error('Failed to add note', error);
       message.error('Failed to add note');
     }
+    setIsLoading(false);
     setAddModalOpen(false);
     setBgImageFileList([]);
     setNotesFileList([]);
   };
 
   const handleConfirmEdit = async () => {
+    setIsEditLoading(true);
     try {
       const values = await form.validateFields();
       if (selectedNote) {
@@ -197,6 +218,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       console.error('Failed to edit note', error);
       message.error('Failed to edit note');
     }
+    setIsEditLoading(false);
     setEditModalOpen(false);
     setSelectedNote(null);
     setBgImageFileList([]);
@@ -306,7 +328,11 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
           open={isAddModalOpen}
           onOk={handleConfirmAdd}
           onCancel={() => setAddModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isLoading}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isLoading,
+          }}
         >
           <Form form={form} layout="vertical" name="add_note_form">
             <Form.Item
@@ -361,7 +387,11 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
           open={isEditModalOpen}
           onOk={handleConfirmEdit}
           onCancel={() => setEditModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isEditLoading}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isEditLoading,
+          }}
         >
           <Form form={form} layout="vertical" name="edit_note_form">
             <Form.Item
@@ -416,7 +446,11 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
           open={isDeleteModalOpen}
           onOk={handleConfirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isDeleteLoading}
+          okButtonProps={{
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+            disabled: isDeleteLoading,
+          }}
         >
           <p>Do you want to delete this note?</p>
         </Modal>

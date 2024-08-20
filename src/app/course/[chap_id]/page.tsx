@@ -126,29 +126,13 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
+      {chapter && (
       <div className="flex justify-between">
         <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold mb-8">Lectures</h1>
+        <h1 className="text-3xl font-bold">{chapter.chapter_name}</h1>
         <p>.</p>
         </div>
-        {chapter && (
-          <div className="mb-8">
-            <Image
-              src={`https://lms.papersdock.com${chapter.chapter_image_url}`}
-              alt={chapter.chapter_name}
-              width={100}
-              height={100}
-              style={{objectFit:"contain"}}
-              className="w-full rounded-lg mb-4 h-90 contain"
-            />
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold">{chapter.chapter_name}</h1>
-                <p className="text-lg text-gray-700">Course Type: {chapter.course_type}</p>
-              </div>
-              <p className="text-base text-gray-600">Chapter ID: {chapter.chap_id}</p>
-            </div>
-          </div>
+   
         )}
         <Table
           columns={columns}

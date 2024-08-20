@@ -35,13 +35,19 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const userData = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data') || '{}') : null;
-
+  const [asBool,setAsBool]=useState(false)
+  const [osBool,setOsBool]=useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const accessToken = localStorage.getItem('access_token');
 
-  useEffect(() => {
-    fetchAssignments();
-  }, []);
 
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    if (userData.selected_course) {
+      setSelectedCourse(userData.selected_course);
+      fetchAssignments();
+    }
+  }, []);
   const fetchAssignments = async () => {
     try {
       const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments`, {
@@ -213,13 +219,49 @@ console.log(data)
 
   return (
     <DefaultLayout>
-     
-      <div className="container mx-auto p-8">
-        {Object.keys(groupedAssignments).map((courseId) => (
+     {selectedCourse == "Both"?
+     <>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
+            <div className={`cursor-pointer rounded-sm border border-stroke bg-${asBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
+          setAsBool(true)
+          setOsBool(false)
+        }}>
+    
+
+            <div className="mt-4 flex items-end justify-between">
+              <div>
+                <h4 className="text-title-md font-bold text-black dark:text-white">
+                  AS
+                </h4>
+            
+              </div>
+      
+             
+            </div>
+          </div>
+          <div className={`cursor-pointer rounded-sm border border-stroke bg-${osBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
+          setOsBool(true)
+          setAsBool(false)
+        }}>
+    
+
+            <div className="mt-4 flex items-end justify-between">
+              <div>
+                <h4 className="text-title-md font-bold text-black dark:text-white">
+                  A2
+                </h4>
+            
+              </div>
+      
+             
+            </div>
+          </div>
+        </div>
+     </>:
+     <>
+      {Object.keys(groupedAssignments).map((courseId) => (
           <div key={courseId} className="mb-8 w-full">
-            <h2 className="text-2xl font-bold mb-4">
-              Course: {groupedAssignments[courseId][0].courseName}
-            </h2>
+         
             <Table
               columns={columns(courseId)}
               dataSource={groupedAssignments[courseId]}
@@ -228,14 +270,46 @@ console.log(data)
             />
           </div>
         ))}
-      </div>
+     </>
 
+     }
+   
+{
+          asBool?
+          <>
+             {Object.keys(groupedAssignments).filter((courseType) => courseType === "AS").map((courseId) => (
+          <div key={courseId} className="mb-8 w-full">
+         
+            <Table
+              columns={columns(courseId)}
+              dataSource={groupedAssignments[courseId]}
+              rowKey="id"
+              pagination={false}
+            />
+          </div>
+        ))}
+          </>:osBool?
+          
+          <>
+             {Object.keys(groupedAssignments).filter((courseType) => courseType === "OS").map((courseId) => (
+          <div key={courseId} className="mb-8 w-full">
+          
+            <Table
+              columns={columns(courseId)}
+              dataSource={groupedAssignments[courseId]}
+              rowKey="id"
+              pagination={false}
+            />
+          </div>
+        ))}
+          </>:""
+}
       <Modal
   title="View Assignment"
   open={isModalOpen}
   footer={null}
   onCancel={() => setIsModalOpen(false)}
-  width="80%"
+
   className="custom-modal"
   bodyStyle={{ padding: 0, margin: 0 }}
   style={{ zIndex: 91050 }} // Ensure zIndex is high enough

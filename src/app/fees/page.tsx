@@ -253,7 +253,7 @@ const StudentFeePage: React.FC = () => {
                 onClick={handlePrint}
                 style={{ backgroundColor: 'black', borderColor: 'black' }}
               >
-                Print Invoice
+                Download Invoice
               </Button>
             ),
             <Button

@@ -143,16 +143,6 @@ const SignUp: React.FC = () => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item label="Upload File">
-                  <Upload
-                    name="file"
-                    beforeUpload={() => false} // Prevent automatic upload
-                    onChange={handleFileChange}
-                    listType="picture"
-                  >
-                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                  </Upload>
-                </Form.Item>
 
                 <Form.Item>
                   <Button  htmlType="submit">

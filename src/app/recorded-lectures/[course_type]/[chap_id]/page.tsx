@@ -1,12 +1,11 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Table, Button, Space, Modal, Form, Input, Upload, message } from 'antd';
+import { Table, Button, Space, Modal, Form, Input, Upload, message, Progress } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import { Progress } from 'antd';
 
 interface Lecture {
   lec_id: string;
@@ -36,13 +35,12 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-
+  const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
 
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const chapterId = parseInt(params.chap_id)
-  console.log(chapterId, params)
+  const chapterId = parseInt(params.chap_id);
 
   useEffect(() => {
     if (chapterId) {
@@ -54,12 +52,11 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
     try {
       const response = await fetch('https://lms.papersdock.com/lectures/get-all-lectures', {
         headers: {
-          'accesstoken': `Bearer ${accessToken}`,
+          accesstoken: `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
         },
       });
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
         setLectures(data.data.filter((lecture: any) => lecture.chapter_id === chapterId));
       } else {
@@ -94,13 +91,14 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   };
 
   const handleConfirmDelete = async () => {
+    setIsDeleteDisabled(true);
     if (selectedLecture) {
       try {
         const response = await fetch('https://lms.papersdock.com/lectures/delete-lecture', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'accesstoken': `Bearer ${accessToken}`,
+            accesstoken: `Bearer ${accessToken}`,
             'x-api-key': 'lms_API',
           },
           body: JSON.stringify({ lec_id: selectedLecture.lec_id }),
@@ -118,6 +116,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       }
       setDeleteModalOpen(false);
       setSelectedLecture(null);
+      setIsDeleteDisabled(false); // Re-enable button after completion
     }
   };
 
@@ -161,7 +160,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           const response = await fetch('https://lms.papersdock.com/lectures/create-lecture', {
             method: 'POST',
             headers: {
-              'accesstoken': `Bearer ${accessToken}`,
+              accesstoken: `Bearer ${accessToken}`,
               'x-api-key': 'lms_API',
             },
             body: formData,
@@ -176,7 +175,6 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           // Update progress for each chunk
           uploadedChunks++;
           const progressPercent = Math.round((uploadedChunks / totalChunks) * 100);
-          console.log(uploadedChunks, totalChunks, progressPercent, "dasdasdasdasd")
           setUploadProgress(progressPercent);
         } catch (error) {
           message.error(`Failed to upload chunk ${chunkNumber}. Please try again.`);
@@ -196,13 +194,14 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       setUploadProgress(100); // Ensure progress reaches 100%
     }
   };
+
   const handleConfirmEdit = async () => {
     try {
       const values = await form.validateFields();
       if (selectedLecture) {
         const formData = new FormData();
         formData.append('lec_id', selectedLecture.lec_id);
-        formData.append('chapter_id', (chapterId).toString());
+        formData.append('chapter_id', chapterId.toString());
         formData.append('title', values.title);
         if (fileList.length > 0) {
           formData.append('file_type', 'video');
@@ -212,7 +211,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
         const response = await fetch('https://lms.papersdock.com/lectures/update-lecture', {
           method: 'POST',
           headers: {
-            'accesstoken': `Bearer ${accessToken}`,
+            accesstoken: `Bearer ${accessToken}`,
             'x-api-key': 'lms_API',
           },
           body: formData,
@@ -274,7 +273,6 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       key: 'action',
       render: (text: string, record: Lecture) => (
         <Space size="middle">
-         
           <Button
             onClick={() => handleDeleteLecture(record)}
             style={{ color: 'red', borderColor: 'rgb(28, 36, 52)' }}
@@ -381,9 +379,13 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           open={isDeleteModalOpen}
           onOk={handleConfirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
-          okButtonProps={{ style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' } }}
+          confirmLoading={isDeleteDisabled}
+          okButtonProps={{
+            disabled: isDeleteDisabled,
+            style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
+          }}
         >
-          <p>Do you want to delete handleconf record?</p>
+          <p>Do you want to delete this record?</p>
         </Modal>
 
         {/* View Lecture Modal */}

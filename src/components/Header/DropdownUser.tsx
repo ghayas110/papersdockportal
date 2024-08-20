@@ -47,22 +47,7 @@ const DropdownUser = () => {
           </span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <Image
-            width={112}
-            height={112}
-            src={
-              userData?.image
-                ? `https://lms.papersdock.com${userData.image}`
-                : "/images/user/user-01.png"
-            }
-            style={{
-              width: "auto",
-              height: "auto",
-            }}
-            alt="User"
-          />
-        </span>
+      
 
         <svg
           className="hidden fill-current sm:block"

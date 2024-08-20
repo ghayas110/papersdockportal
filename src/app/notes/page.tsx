@@ -23,15 +23,19 @@ const NotesView: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isViewModalOpen, setViewModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-
+  const [asBool,setAsBool]=useState(false)
+  const [osBool,setOsBool]=useState(false)
   const accessToken = localStorage.getItem('access_token');
-  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-  const selectedCourse = userData.selected_course;
 
+
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   useEffect(() => {
-    fetchNotes();
+    const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    if (userData.selected_course) {
+      setSelectedCourse(userData.selected_course);
+      fetchNotes();
+    }
   }, []);
-
   const fetchNotes = async () => {
     try {
       const response = await fetch('https://lms.papersdock.com/notes/get-all-notes', {
@@ -76,13 +80,50 @@ const NotesView: React.FC = () => {
 
   return (
     <DefaultLayout>
-      <h3 className="text-title-md2 font-bold text-black dark:text-white">
-        {selectedCourse} Notes
-      </h3>
+   
+{selectedCourse=="Both"?
+<>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
+            <div className={`cursor-pointer rounded-sm border border-stroke bg-${asBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
+          setAsBool(true)
+          setOsBool(false)
+        }}>
+    
 
-      {Object.keys(groupedNotes).map((courseType) => (
+            <div className="mt-4 flex items-end justify-between">
+              <div>
+                <h4 className="text-title-md font-bold text-black dark:text-white">
+                  AS
+                </h4>
+            
+              </div>
+      
+             
+            </div>
+          </div>
+          <div className={`cursor-pointer rounded-sm border border-stroke bg-${osBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
+          setOsBool(true)
+          setAsBool(false)
+        }}>
+    
+
+            <div className="mt-4 flex items-end justify-between">
+              <div>
+                <h4 className="text-title-md font-bold text-black dark:text-white">
+                  A2
+                </h4>
+            
+              </div>
+      
+             
+            </div>
+          </div>
+        </div>
+</>
+:<>
+{Object.keys(groupedNotes).map((courseType) => (
         <div key={courseType}>
-          <h2 className="text-xl font-bold mb-4">{courseType}</h2>
+       
           <Tabs defaultActiveKey="dark_mode">
             <TabPane tab="Dark Mode" key="dark_mode">
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
@@ -119,7 +160,99 @@ const NotesView: React.FC = () => {
           </Tabs>
         </div>
       ))}
+</>
 
+}
+   
+
+{
+          asBool?
+          <>
+         {Object.keys(groupedNotes).filter((courseType) => courseType === "AS").map((courseType) => (
+        <div key={courseType}>
+        
+          <Tabs defaultActiveKey="dark_mode">
+            <TabPane tab="Dark Mode" key="dark_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'dark_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+            <TabPane tab="Light Mode" key="light_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'light_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+          </Tabs>
+        </div>
+      ))}
+          </>
+          :osBool?
+          <>
+      {Object.keys(groupedNotes).filter((courseType) => courseType === "OS").map((courseType) => (
+        <div key={courseType}>
+        
+          <Tabs defaultActiveKey="dark_mode">
+            <TabPane tab="Dark Mode" key="dark_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'dark_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+            <TabPane tab="Light Mode" key="light_mode">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
+                {groupedNotes[courseType]
+                  .filter(note => note.note_type === 'light_mode')
+                  .map((note) => (
+                    <NotesCard
+                      key={note.note_id}
+                      notesId={note.note_id}
+                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      title={note.note_title}
+                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                    />
+                  ))}
+              </div>
+            </TabPane>
+          </Tabs>
+        </div>
+      ))}
+          </>
+          :""
+
+        }
       <Modal
         title="View Note"
         open={isViewModalOpen}
