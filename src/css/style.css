@@ -8,6 +8,35 @@
     body {
         @apply relative z-1 bg-whiten font-satoshi text-base font-normal text-body;
     }
+    .padding {
+        @apply sm:px-16 px-8 sm:py-24 py-12;
+      }
+    
+      .padding-x {
+        @apply sm:px-16 px-8;
+      }
+    
+      .padding-y {
+        @apply sm:py-24 py-12;
+      }
+    
+      .padding-l {
+        @apply sm:pl-16 pl-8;
+      }
+    
+      .padding-r {
+        @apply sm:pr-16 pr-8;
+      }
+    
+      .padding-t {
+        @apply sm:pt-24 pt-12;
+      }
+    
+      .padding-b {
+        @apply sm:pb-24 pb-8;
+      }
+    
+   
 }
 .custom-modal .ant-modal {
     z-index: 10000 !important; /* Ensure the modal container has a high z-index */
@@ -29,6 +58,7 @@
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
+  
 
     .no-scrollbar {
         -ms-overflow-style: none; /* IE and Edge */
@@ -258,4 +288,10 @@ input[type="search"]::-webkit-search-cancel-button {
 
 [x-cloak] {
     display: none !important;
+}
+bg-header{
+    background-color: "#191919";
+}
+font-size{
+    font-size: 84px;
 }

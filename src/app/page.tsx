@@ -2,6 +2,7 @@
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import SignIn from "./auth/signin/page";
+import HomeScreen from "./HomeScreen/page";
 
 export const metadata: Metadata = {
   title:
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
-    <SignIn/>
-    </>
+    <section className="bg-gray-900">
+    <HomeScreen/>
+    </section>
   );
 }
