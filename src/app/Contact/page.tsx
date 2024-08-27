@@ -56,7 +56,7 @@ const Contact: React.FC = (): JSX.Element => {
 
   return (
     <>
-      <div className=" p-10  bg-zinc-800">
+      <div className=" p-10  bg-zinc-800" id="contact">
         <h1 className="text-4xl text-white font-bold text-center mb-8">Get in Touch</h1>
         <p className="text-xl text-center text-white mb-10">
           Have any questions or need assistance? Reach out to us through your
@@ -102,7 +102,7 @@ const Contact: React.FC = (): JSX.Element => {
         </div>
       </div>
 
-      <div className=" bg-zinc-800">
+      {/* <div className=" bg-zinc-800">
         <h1 className="font-bold text-center text-2xl text-white bg-zinc-800 pt-9 mb-10">
           Frequently Asked Questions
         </h1>
@@ -133,7 +133,7 @@ const Contact: React.FC = (): JSX.Element => {
             )}
           </div>
         ))}
-      </div>
+      </div> */}
     </>
   );
 };

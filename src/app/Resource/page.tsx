@@ -6,7 +6,7 @@ import { featuresData, resourceData } from "@/constant/page";
 const Features = () => {
   return (
     <>
-      <section id="features" className="py-16 px-10 md:py-20 lg:py-28 bg-zinc-800">
+      <section id="resource" className="py-16 px-10 md:py-20 lg:py-28 bg-zinc-800">
         <div className="container">
           <SectionTitle
             title="Resources"

@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import MenuData from './MenuData'
+import MenuData from './menuData'
 const Header = () => {
   return (
    <header className="header relative  z-10 flex items-center justify-center ">

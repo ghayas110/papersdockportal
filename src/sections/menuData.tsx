@@ -3,27 +3,22 @@ const menuData= [
     {
       id: 1,
       title: "Home",
-      path: "/",
+      path: "#home",
       newTab: false,
     },
     {
       id: 2,
-      title: "About",
-      path: "/about",
+      title: "Resources",
+      path: "#resource",
       newTab: false,
     },
     {
       id: 3,
-      title: "Blog",
-      path: "/blog",
+      title: "Contact",
+      path: "#contact",
       newTab: false,
     },
-    {
-      id: 4,
-      title: "Docs",
-      path: "/docs",
-      newTab: false,
-    },
+   
   
   ];
   export default menuData;

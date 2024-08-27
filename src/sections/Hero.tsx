@@ -4,7 +4,7 @@ import React from 'react';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative bg-zinc-800">
+    <section id="hero" className="relative bg-zinc-800">
       <div
         style={{
           width: '100vw',
