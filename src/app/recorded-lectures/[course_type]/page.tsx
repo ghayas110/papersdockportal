@@ -45,13 +45,14 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
 
   const fetchChapters = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/chapters/get-all-chapters', {
+      const response = await fetch('https://www.be.papersdock.com/chapters/get-all-chapters', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
         },
       });
       const data = await response.json();
+      console.log(data)
       if (response.ok) {
         setChapters(courseType !== "Both" ? data.data.filter((chapter: any) => chapter.course_type === courseType) : data.data);
       } else {
@@ -81,7 +82,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
       uid: '-1', // A unique identifier
       name: chapter.chapter_image_url.split('/').pop(), // Image file name
       status: 'done', // Set the status to done to show the image in preview
-      url: `https://lms.papersdock.com${chapter.chapter_image_url}`, // Full URL of the image
+      url: `https://www.be.papersdock.com${chapter.chapter_image_url}`, // Full URL of the image
     }]);
 
     setEditModalOpen(true);
@@ -96,7 +97,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     if (selectedChapter) {
       setDeleteLoading(true);
       try {
-        const response = await fetch('https://lms.papersdock.com/chapters/delete-chapter', {
+        const response = await fetch('https://www.be.papersdock.com/chapters/delete-chapter', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
         formData.append('chapter-image', fileList[0].originFileObj);
       }
 
-      const response = await fetch('https://lms.papersdock.com/chapters/create-chapter', {
+      const response = await fetch('https://www.be.papersdock.com/chapters/create-chapter', {
         method: 'POST',
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
@@ -172,7 +173,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
           formData.append('chapter-image', fileList[0].originFileObj);
         }
 
-        const response = await fetch('https://lms.papersdock.com/chapters/update-chapter', {
+        const response = await fetch('https://www.be.papersdock.com/chapters/update-chapter', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -204,7 +205,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   };
 
   const handleViewImage = (chapter: Chapter) => {
-    setImageUrl(`https://lms.papersdock.com${chapter.chapter_image_url}`);
+    setImageUrl(`https://www.be.papersdock.com${chapter.chapter_image_url}`);
     setViewModalOpen(true);
   };
 

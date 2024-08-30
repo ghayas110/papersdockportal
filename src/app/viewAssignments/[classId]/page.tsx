@@ -41,7 +41,7 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
 
   const fetchAssignments = async () => {
     try {
-      const response = await fetch(`https://lms.papersdock.com/assignments/get-all-assignments`, {
+      const response = await fetch(`https://www.be.papersdock.com/assignments/get-all-assignments`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -57,7 +57,7 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
           assignment_id: assignment.assignment_id,
           student_name: assignment.student_name,
           assignment_name: assignment.assignment_name,
-          questionFile: `https://lms.papersdock.com${assignment.assignment_file}`,
+          questionFile: `https://www.be.papersdock.com${assignment.assignment_file}`,
           assignment_file: assignment.submission_file,
           deadline: moment(assignment.deadline).format('YYYY-MM-DD'),
           course_type: assignment.course_type,
@@ -83,7 +83,7 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
     const marks = parseInt(obtainedMarks[submissionId]);
     if (marks) {
       try {
-        const response = await fetch('https://lms.papersdock.com/submission/check-assignment', {
+        const response = await fetch('https://www.be.papersdock.com/submission/check-assignment', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -107,7 +107,7 @@ const ViewAssignments: React.FC<ViewAssignmentsProps> = ({ params }) => {
   };
 
   const handleViewAssignment = (fileUrl: string) => {
-    setPdfUrl(`https://lms.papersdock.com${fileUrl}`);
+    setPdfUrl(`https://www.be.papersdock.com${fileUrl}`);
     setIsModalOpen(true);
   };
 

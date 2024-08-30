@@ -50,7 +50,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
 
   const fetchLectures = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/lectures/get-all-lectures', {
+      const response = await fetch('https://www.be.papersdock.com/lectures/get-all-lectures', {
         headers: {
           accesstoken: `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -94,7 +94,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
     setIsDeleteDisabled(true);
     if (selectedLecture) {
       try {
-        const response = await fetch('https://lms.papersdock.com/lectures/delete-lecture', {
+        const response = await fetch('https://www.be.papersdock.com/lectures/delete-lecture', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
         formData.append('file_type', 'video');
 
         try {
-          const response = await fetch('https://lms.papersdock.com/lectures/create-lecture', {
+          const response = await fetch('https://www.be.papersdock.com/lectures/create-lecture', {
             method: 'POST',
             headers: {
               accesstoken: `Bearer ${accessToken}`,
@@ -208,7 +208,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           formData.append('lecture', fileList[0].originFileObj);
         }
 
-        const response = await fetch('https://lms.papersdock.com/lectures/update-lecture', {
+        const response = await fetch('https://www.be.papersdock.com/lectures/update-lecture', {
           method: 'POST',
           headers: {
             accesstoken: `Bearer ${accessToken}`,
@@ -240,7 +240,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   };
 
   const handleViewLecture = (lecture: Lecture) => {
-    setVideoUrl(`https://lms.papersdock.com${lecture.file_url}`);
+    setVideoUrl(`https://www.be.papersdock.com${lecture.file_url}`);
     setViewModalOpen(true);
   };
 

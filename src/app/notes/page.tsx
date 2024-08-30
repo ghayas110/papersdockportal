@@ -38,7 +38,7 @@ const NotesView: React.FC = () => {
   }, []);
   const fetchNotes = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/notes/get-all-notes', {
+      const response = await fetch('https://www.be.papersdock.com/notes/get-all-notes', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -58,7 +58,7 @@ const NotesView: React.FC = () => {
 
   const handleViewNote = (note: Note) => {
     const noteAttachment = note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment;
-    setPdfUrl(`https://lms.papersdock.com${noteAttachment}`);
+    setPdfUrl(`https://www.be.papersdock.com${noteAttachment}`);
     setSelectedNote(note);
     setViewModalOpen(true);
   };
@@ -133,10 +133,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -149,10 +149,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>
@@ -180,10 +180,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -196,10 +196,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>
@@ -222,10 +222,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -238,10 +238,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`https://lms.papersdock.com${note.note_bg_image}`}
+                      image={`https://www.be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`https://lms.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://www.be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>

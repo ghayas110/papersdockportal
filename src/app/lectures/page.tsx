@@ -30,7 +30,7 @@ const CourseView: React.FC = () => {
   const fetchChapters = async (courseType: string) => {
     const accessToken = localStorage.getItem("access_token");
     try {
-      const response = await fetch("https://lms.papersdock.com/chapters/get-all-chapters", {
+      const response = await fetch("https://www.be.papersdock.com/chapters/get-all-chapters", {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -111,7 +111,7 @@ const CourseView: React.FC = () => {
                 <CourseCard
                   key={chapter.chap_id}
                   courseId={chapter.chap_id.toString()}
-                  image={`https://lms.papersdock.com${chapter.chapter_image_url}`}
+                  image={`https://www.be.papersdock.com${chapter.chapter_image_url}`}
                   title={chapter.chapter_name}
                   instructor={selectedCourse || ""}
                 />
@@ -133,7 +133,7 @@ const CourseView: React.FC = () => {
                 <CourseCard
                   key={chapter.chap_id}
                   courseId={chapter.chap_id.toString()}
-                  image={`https://lms.papersdock.com${chapter.chapter_image_url}`}
+                  image={`https://www.be.papersdock.com${chapter.chapter_image_url}`}
                   title={chapter.chapter_name}
                   instructor={selectedCourse || ""}
                 />
@@ -152,7 +152,7 @@ const CourseView: React.FC = () => {
                 <CourseCard
                   key={chapter.chap_id}
                   courseId={chapter.chap_id.toString()}
-                  image={`https://lms.papersdock.com${chapter.chapter_image_url}`}
+                  image={`https://www.be.papersdock.com${chapter.chapter_image_url}`}
                   title={chapter.chapter_name}
                   instructor={selectedCourse || ""}
                 />

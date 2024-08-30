@@ -32,7 +32,7 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
 
   const fetchStudents = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/users/get-all-users', {
+      const response = await fetch('https://www.be.papersdock.com/users/get-all-users', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -63,8 +63,8 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
 
   const handleAccessChange = async (id: string, access: 'granted' | 'removed') => {
     const apiUrl = access === 'granted' 
-      ? 'https://lms.papersdock.com/users/approve-student-access' 
-      : 'https://lms.papersdock.com/users/reject-student-access';
+      ? 'https://www.be.papersdock.com/users/approve-student-access' 
+      : 'https://www.be.papersdock.com/users/reject-student-access';
 
     try {
       const response = await fetch(apiUrl, {

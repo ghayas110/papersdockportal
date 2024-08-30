@@ -54,7 +54,7 @@ const StudentFeePage: React.FC = () => {
 
   const fetchFeeData = async () => {
     try {
-      const response = await fetch('https://lms.papersdock.com/fees/get-all-fee-august-to-may', {
+      const response = await fetch('https://www.be.papersdock.com/fees/get-all-fee-august-to-may', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -87,7 +87,7 @@ const StudentFeePage: React.FC = () => {
         formData.append('year', selectedFee.year.toString());
         formData.append('invoice', fileList[0].originFileObj);
 
-        const response = await fetch('https://lms.papersdock.com/fees/insert-fee-invoice', {
+        const response = await fetch('https://www.be.papersdock.com/fees/insert-fee-invoice', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -117,7 +117,7 @@ const StudentFeePage: React.FC = () => {
   };
   const onToken = async (token: any) => {
     try {
-      const response = await axios.post('https://lms.papersdock.com/checkout', { token, product });
+      const response = await axios.post('https://www.be.papersdock.com/checkout', { token, product });
       if (response.status === 200) {
         const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
         const date = new Date().toLocaleDateString(); // Current date
@@ -200,7 +200,7 @@ const StudentFeePage: React.FC = () => {
       key: 'invoice_file',
       render: (text: string, record: FeeData) =>
         record.invoice_file ? (
-          <a href={`https://lms.papersdock.com${record.invoice_file}`} target="_blank" rel="noopener noreferrer">
+          <a href={`https://www.be.papersdock.com${record.invoice_file}`} target="_blank" rel="noopener noreferrer">
             View Invoice
           </a>
         ) : (
@@ -276,7 +276,7 @@ const StudentFeePage: React.FC = () => {
               {selectedFee.invoice_file ? (
                 <p>
                   Existing Invoice:{' '}
-                  <a href={`https://lms.papersdock.com${selectedFee.invoice_file}`} target="_blank" rel="noopener noreferrer">
+                  <a href={`https://www.be.papersdock.com${selectedFee.invoice_file}`} target="_blank" rel="noopener noreferrer">
                     View Invoice
                   </a>
                 </p>
