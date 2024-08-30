@@ -43,7 +43,7 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
   const fetchFeeData = async () => {
     try {
       const response = await fetch(
-        `https://www.be.papersdock.com/fees/get-all-fee-invoices-by-month-name?month=${selectedMonth}&year=${selectedYear}`,
+        `http://be.papersdock.com/fees/get-all-fee-invoices-by-month-name?month=${selectedMonth}&year=${selectedYear}`,
         {
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -65,7 +65,7 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
             year: fee.year,
             contact: fee.contact,
             status: fee.fee_status.toLowerCase() as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected',
-            invoiceFile: fee.invoice_file ? `https://www.be.papersdock.com${fee.invoice_file}` : undefined,
+            invoiceFile: fee.invoice_file ? `http://be.papersdock.com${fee.invoice_file}` : undefined,
           }));
         setFeeData(formattedData);
         setFilteredData(formattedData);
@@ -89,7 +89,7 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
 
   const handleStatusChange = async (id: string, value: string) => {
     try {
-      const response = await fetch('https://www.be.papersdock.com/fees/approve-fee-invoice', {
+      const response = await fetch('http://be.papersdock.com/fees/approve-fee-invoice', {
         method: 'POST',
         headers: {
           'accesstoken': `Bearer ${accessToken}`,

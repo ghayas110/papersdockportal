@@ -47,7 +47,7 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
 
   const fetchChapterInfo = async () => {
     try {
-      const response = await fetch(`https://www.be.papersdock.com/chapters/get-chapter-by-Id/${chapterId}`, {
+      const response = await fetch(`http://be.papersdock.com/chapters/get-chapter-by-Id/${chapterId}`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -67,7 +67,7 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
 
   const fetchLectures = async () => {
     try {
-      const response = await fetch('https://www.be.papersdock.com/lectures/get-all-lectures', {
+      const response = await fetch('http://be.papersdock.com/lectures/get-all-lectures', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',

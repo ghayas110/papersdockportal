@@ -46,7 +46,7 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
 
   const fetchLecture = async () => {
     try {
-      const response = await fetch(`https://www.be.papersdock.com/lectures/get-lecture-by-Id/${lec_id}`, {
+      const response = await fetch(`http://be.papersdock.com/lectures/get-lecture-by-Id/${lec_id}`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -80,7 +80,7 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
             </div>
             <div className="video-wrapper">
               <ReactPlayer
-                url={`https://www.be.papersdock.com${lecture.file_url}`}
+                url={`http://be.papersdock.com${lecture.file_url}`}
                 controls
                 width="100%"
                 height="100%"

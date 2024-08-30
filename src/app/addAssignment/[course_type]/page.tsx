@@ -49,7 +49,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
 
   const fetchAssignments = async () => {
     try {
-      const response = await fetch('https://www.be.papersdock.com/assignments/get-all-assignments-admin', {
+      const response = await fetch('http://be.papersdock.com/assignments/get-all-assignments-admin', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -86,7 +86,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
       uid: '-1',
       name: assignment.assignment_file.split('/').pop(),
       status: 'done',
-      url: `https://www.be.papersdock.com${assignment.assignment_file}`,
+      url: `http://be.papersdock.com${assignment.assignment_file}`,
     }]);
 
     setEditModalOpen(true);
@@ -101,7 +101,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
     setIsDeleteLoading(true);
     if (selectedAssignment) {
       try {
-        const response = await fetch('https://www.be.papersdock.com/assignments/delete-assignment', {
+        const response = await fetch('http://be.papersdock.com/assignments/delete-assignment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
         formData.append('assignment', fileList[0].originFileObj);
       }
 
-      const response = await fetch('https://www.be.papersdock.com/assignments/create-assignment', {
+      const response = await fetch('http://be.papersdock.com/assignments/create-assignment', {
         method: 'POST',
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
@@ -180,7 +180,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
           formData.append('assignment', fileList[0].originFileObj);
         }
 
-        const response = await fetch('https://www.be.papersdock.com/assignments/update-assignment', {
+        const response = await fetch('http://be.papersdock.com/assignments/update-assignment', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -212,7 +212,7 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
   };
 
   const handleViewAssignment = (assignment: Assignment) => {
-    setPdfUrl(`https://www.be.papersdock.com${assignment.assignment_file}`);
+    setPdfUrl(`http://be.papersdock.com${assignment.assignment_file}`);
     setViewModalOpen(true);
   };
 

@@ -50,7 +50,7 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
   }, []);
   const fetchAssignments = async () => {
     try {
-      const response = await fetch(`https://www.be.papersdock.com/assignments/get-all-assignments`, {
+      const response = await fetch(`http://be.papersdock.com/assignments/get-all-assignments`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -66,7 +66,7 @@ console.log(data)
           courseId: assignment.course_type,
           courseName: assignment.course_type,
           assignmentName: assignment.assignment_name,
-          questionFile: `https://www.be.papersdock.com${assignment.assignment_file}`,
+          questionFile: `http://be.papersdock.com${assignment.assignment_file}`,
           deadline: moment(assignment.deadline).format('YYYY-MM-DD'),
           obtainedMarks: assignment.obtained_marks,
           status: assignment.status,
@@ -98,7 +98,7 @@ console.log(data)
       formData.append('submitAssignment', uploadedFile);
 
       try {
-        const response = await fetch('https://www.be.papersdock.com/submission/submit-assignment', {
+        const response = await fetch('http://be.papersdock.com/submission/submit-assignment', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -123,7 +123,7 @@ console.log(data)
   };
 
   const handleViewAssignment = (fileUrl: string) => {
-    setPdfUrl(`https://www.be.papersdock.com${fileUrl}`);
+    setPdfUrl(`http://be.papersdock.com${fileUrl}`);
     setIsModalOpen(true);
   };
 
