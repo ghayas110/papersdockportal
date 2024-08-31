@@ -10,9 +10,8 @@ import Footer from "../Footer/page";
 import Contact from "../Contact/page";
 
 export const metadata: Metadata = {
-    title: "Next.js Home | TailAdmin - Next.js Dashboard Template",
-    description:
-        "This is Next.js Home page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+    title: "PapersDock",
+    description: "Eduction Platform",
 };  
 
 export default function HomeScreen() {

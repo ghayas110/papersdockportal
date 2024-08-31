@@ -95,26 +95,26 @@ export const resourceData =[
     {
         notesId: "abc123",
         image: "images/cover/PAPER1.png",
-        title: "Paper 1",
+        title: "paper1",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       
       },
       {
         notesId: "abc124",
         image: "/images/cover/PAPER2.png",
-        title: "Paper 2",
+        title: "paper2",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       },
       {
         notesId: "abc125",
         image: "/images/cover/PAPER3.png",
-        title: "Paper 3",
+        title: "paper3",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       },
       {
         notesId: "abc125",
         image: "/images/cover/PAPER4.png",
-        title: "Paper 4",
+        title: "paper4",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       }
 
