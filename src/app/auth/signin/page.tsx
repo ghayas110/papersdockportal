@@ -47,7 +47,8 @@ const Login: React.FC = () => {
       console.log(data)
       setLoading(false);
 
-      if (data.message === "successfully login") {
+      if (data.message === "successfully login") { 
+        
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("user_data", JSON.stringify(data.data));
         message.success("Successfully logged in!");
