@@ -22,7 +22,7 @@ export default function HomeScreen() {
      <Hero/>
      <Resource/>
      <Contact/>
-<Footer/>
+
         </section>
     );
 }

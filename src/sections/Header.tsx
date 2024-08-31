@@ -1,8 +1,41 @@
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import MenuData from './menuData'
 const Header = () => {
+   // Navbar toggle
+   const [navbarOpen, setNavbarOpen] = useState(false);
+   const navbarToggleHandler = () => {
+     setNavbarOpen(!navbarOpen);
+   };
+ 
+   // Sticky Navbar
+   const [sticky, setSticky] = useState(false);
+   const handleStickyNavbar = () => {
+     if (window.scrollY >= 80) {
+       setSticky(true);
+     } else {
+       setSticky(false);
+     }
+   };
+   useEffect(() => {
+     window.addEventListener("scroll", handleStickyNavbar);
+   });
+ 
+   // submenu handler
+   const [openIndex, setOpenIndex] = useState(-1);
+   const handleSubmenu = (index: number)=> {
+     if (openIndex === index) {
+       setOpenIndex(-1);
+     } else {
+       setOpenIndex(index);
+     }
+   };
+ 
+   const usePathName = usePathname();
+ 
   return (
    <header className="header relative  z-10 flex items-center justify-center ">
 <div style={{width:"90%",backgroundColor:'#1c1c1c',borderRadius:"10px",marginTop:20,height:"80px" }} className=" h-10, flex items-center justify-between px-4 py-4 md:px-5 lg:px-8 rounded-3xl ">

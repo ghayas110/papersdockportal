@@ -295,3 +295,77 @@ bg-header{
 font-size{
     font-size: 84px;
 }
+/* styles.css */
+
+/* Base styles for the header */
+.header-container {
+    width: 90%;
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    margin-top: 20px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px; /* Default padding */
+  }
+  
+  /* Media query for medium devices and up (md equivalent) */
+  @media (min-width: 768px) {
+    .header-container {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+  
+  /* Media query for large devices and up (lg equivalent) */
+  @media (min-width: 1024px) {
+    .header-container {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+  }
+  
+  /* Media query for extra-large devices and up (xl equivalent) */
+  @media (min-width: 1280px) {
+    .header-container {
+      padding-left: 36px;
+      padding-right: 36px;
+    }
+  }
+  
+  /* Common styles */
+  .header-link {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .header-link:hover {
+    color: #B09F4E; /* Hover color */
+  }
+  
+  .portal-button {
+    background-color: #B09F4E;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .portal-button:hover {
+    background-color: #A18F44;
+  }
+  
+  /* Sticky navbar styles */
+  .header.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+    background-color: rgba(28, 28, 28, 0.9);
+    transition: background-color 0.3s ease;
+  }
+  

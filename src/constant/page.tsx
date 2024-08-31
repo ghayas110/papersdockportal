@@ -97,21 +97,25 @@ export const resourceData =[
         image: "images/cover/PAPER1.png",
         title: "Paper 1",
         viewNotesUrl: "https://example.com/view-notes/abc123",
-        downloadNotesUrl: "https://example.com/download-notes/abc123"
+      
       },
       {
         notesId: "abc124",
         image: "/images/cover/PAPER2.png",
         title: "Paper 2",
         viewNotesUrl: "https://example.com/view-notes/abc123",
-        downloadNotesUrl: "https://example.com/download-notes/abc123"
       },
       {
         notesId: "abc125",
         image: "/images/cover/PAPER3.png",
         title: "Paper 3",
         viewNotesUrl: "https://example.com/view-notes/abc123",
-        downloadNotesUrl: "https://example.com/download-notes/abc123"
+      },
+      {
+        notesId: "abc125",
+        image: "/images/cover/PAPER4.png",
+        title: "Paper 4",
+        viewNotesUrl: "https://example.com/view-notes/abc123",
       }
 
 ] 

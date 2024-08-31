@@ -5,10 +5,10 @@ interface ResourceCardProps {
   image: string;
   title: string;
   viewNotesUrl: string;
-  downloadNotesUrl: string;
+
 }
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ image, title, viewNotesUrl, downloadNotesUrl }) => {
+const ResourceCard: React.FC<ResourceCardProps> = ({ image, title, viewNotesUrl }) => {
   return (
     <div style={{backgroundColor:'#1c1c1c'}} className="max-w-lg rounded overflow-hidden shadow-lg m-4">
       <div className="w-full h-48 overflow-hidden">
@@ -19,28 +19,18 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ image, title, viewNotesUrl,
         <div className="mt-4 flex space-x-4">
 
       
-        <div className="mt-4 flex space-x-4">
+        <div className="mt-4 flex">
           <a
             href={viewNotesUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[rgb(28,36,52)] hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded"
+            className="bg-[rgb(28,36,52)] hover:bg-opacity-90 text-white font-bold py-2 px-8 rounded"
           >
             View Notes
           </a>
        
         </div>
-        <div className="mt-4 flex space-x-4">
-          <a
-            href={viewNotesUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[rgb(28,36,52)] hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded"
-          >
-            Download Notes
-          </a>
-       
-        </div>
+      
         </div>
       </div>
     </div>
