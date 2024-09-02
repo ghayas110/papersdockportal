@@ -1,11 +1,10 @@
 "use client"; // Mark this file as a Client Component
 
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Upload, Tag, message, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import DefaultLayout from '@/components/Layouts/DefaultLayout';
 
 interface Assignment {
   id: string;
@@ -35,31 +34,30 @@ const AssignmentUploadPage: React.FC<AssignmentUploadPageProps> = ({ params }) =
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const userData = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data') || '{}') : null;
-  const [asBool,setAsBool]=useState(false)
-  const [osBool,setOsBool]=useState(false)
+  const [asBool, setAsBool] = useState(false);
+  const [osBool, setOsBool] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const accessToken = localStorage.getItem('access_token');
 
-
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
     if (userData.selected_course) {
       setSelectedCourse(userData.selected_course);
       fetchAssignments();
     }
   }, []);
+
   const fetchAssignments = async () => {
     try {
       const response = await fetch(`https://be.papersdock.com/assignments/get-all-assignments`, {
         headers: {
-          'accesstoken': `Bearer ${accessToken}`,
+          accesstoken: `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
         },
       });
       const data = await response.json();
-console.log(data)
       if (response.ok) {
-        const filteredAssignments = data.data
+        const filteredAssignments = data.data;
         const fetchedAssignments = filteredAssignments.map((assignment: any) => ({
           id: assignment.assignment_id,
           assignment_id: assignment.assignment_id,
@@ -101,7 +99,7 @@ console.log(data)
         const response = await fetch('https://be.papersdock.com/submission/submit-assignment', {
           method: 'POST',
           headers: {
-            'accesstoken': `Bearer ${accessToken}`,
+            accesstoken: `Bearer ${accessToken}`,
             'x-api-key': 'lms_API',
           },
           body: formData,
@@ -129,11 +127,6 @@ console.log(data)
 
   const columns = (courseId: string) => [
     {
-      title: 'AssignmentId',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
       title: 'Assignment Name',
       dataIndex: 'assignmentName',
       key: 'assignmentName',
@@ -142,9 +135,12 @@ console.log(data)
       title: 'Question File',
       key: 'questionFile',
       render: (text: string, record: Assignment) => (
-        <a href={record.questionFile} download className="text-blue-500 underline">
-          Download
-        </a>
+        <Button
+          onClick={() => handleViewAssignment(record.assignment_file)}
+          style={{ color: 'white', backgroundColor: 'black' }}
+        >
+          View File
+        </Button>
       ),
     },
     {
@@ -219,49 +215,38 @@ console.log(data)
 
   return (
     <DefaultLayout>
-     {selectedCourse == "Both"?
-     <>
-<div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
-            <div className={`cursor-pointer rounded-sm border border-stroke bg-${asBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
-          setAsBool(true)
-          setOsBool(false)
-        }}>
-    
-
+      {selectedCourse === 'Both' ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div
+            className={`cursor-pointer rounded-sm border border-stroke bg-${asBool ? 'muted' : 'white'} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}
+            onClick={() => {
+              setAsBool(true);
+              setOsBool(false);
+            }}
+          >
             <div className="mt-4 flex items-end justify-between">
-              <div>
-                <h4 className="text-title-md font-bold text-black dark:text-white">
-                  AS
-                </h4>
-            
-              </div>
-      
-             
+              <h4 className="text-title-md font-bold text-black dark:text-white">
+                AS
+              </h4>
             </div>
           </div>
-          <div className={`cursor-pointer rounded-sm border border-stroke bg-${osBool?"muted":"white"} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}  onClick={()=>{
-          setOsBool(true)
-          setAsBool(false)
-        }}>
-    
-
+          <div
+            className={`cursor-pointer rounded-sm border border-stroke bg-${osBool ? 'muted' : 'white'} px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark`}
+            onClick={() => {
+              setOsBool(true);
+              setAsBool(false);
+            }}
+          >
             <div className="mt-4 flex items-end justify-between">
-              <div>
-                <h4 className="text-title-md font-bold text-black dark:text-white">
-                  A2
-                </h4>
-            
-              </div>
-      
-             
+              <h4 className="text-title-md font-bold text-black dark:text-white">
+                A2
+              </h4>
             </div>
           </div>
         </div>
-     </>:
-     <>
-      {Object.keys(groupedAssignments).map((courseId) => (
+      ) : (
+        Object.keys(groupedAssignments).map((courseId) => (
           <div key={courseId} className="mb-8 w-full">
-         
             <Table
               columns={columns(courseId)}
               dataSource={groupedAssignments[courseId]}
@@ -269,17 +254,12 @@ console.log(data)
               pagination={false}
             />
           </div>
-        ))}
-     </>
+        ))
+      )}
 
-     }
-   
-{
-          asBool?
-          <>
-             {Object.keys(groupedAssignments).filter((courseType) => courseType === "AS").map((courseId) => (
+      {asBool && (
+        Object.keys(groupedAssignments).filter((courseType) => courseType === 'AS').map((courseId) => (
           <div key={courseId} className="mb-8 w-full">
-         
             <Table
               columns={columns(courseId)}
               dataSource={groupedAssignments[courseId]}
@@ -287,13 +267,11 @@ console.log(data)
               pagination={false}
             />
           </div>
-        ))}
-          </>:osBool?
-          
-          <>
-             {Object.keys(groupedAssignments).filter((courseType) => courseType === "OS").map((courseId) => (
+        ))
+      )}
+      {osBool && (
+        Object.keys(groupedAssignments).filter((courseType) => courseType === 'OS').map((courseId) => (
           <div key={courseId} className="mb-8 w-full">
-          
             <Table
               columns={columns(courseId)}
               dataSource={groupedAssignments[courseId]}
@@ -301,19 +279,18 @@ console.log(data)
               pagination={false}
             />
           </div>
-        ))}
-          </>:""
-}
+        ))
+      )}
+
       <Modal
-  title="View Assignment"
-  open={isModalOpen}
-  footer={null}
-  onCancel={() => setIsModalOpen(false)}
-
-  className="custom-modal"
-  bodyStyle={{ padding: 0, margin: 0 }}
-  style={{ zIndex: 91050 }} // Ensure zIndex is high enough
->
+        title="View Assignment"
+        open={isModalOpen}
+        footer={null}
+        onCancel={() => setIsModalOpen(false)}
+        className="custom-modal"
+        bodyStyle={{ padding: 0, margin: 0 }}
+        style={{ zIndex: 91050 }}
+      >
         {pdfUrl && (
           <iframe src={pdfUrl} style={{ width: '100%', height: '600px' }} />
         )}

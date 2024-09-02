@@ -93,21 +93,13 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
   };
 
   const columns = [
-    {
-      title: 'Lecture ID',
-      dataIndex: 'lec_id',
-      key: 'lec_id',
-    },
+ 
     {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
     },
-    {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-    },
+  
     {
       title: 'Actions',
       key: 'actions',
@@ -129,7 +121,7 @@ const LectureView: React.FC<LectureViewProps> = ({ params }) => {
       {chapter && (
       <div className="flex justify-between">
         <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold">{chapter.chapter_name}</h1>
+        <h1 className="text-3xl font-bold mb-10">{chapter.chapter_name}</h1>
         <p>.</p>
         </div>
    

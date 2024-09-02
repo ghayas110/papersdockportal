@@ -30,7 +30,7 @@ const DropdownUser = () => {
     localStorage.clear(); // Clear all local storage
     router.push("/"); // Redirect to the homepage
   };
-
+  {console.log(userData,"ss")}
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link
@@ -38,12 +38,14 @@ const DropdownUser = () => {
         className="flex items-center gap-4"
         href="#"
       >
+    
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
             {userData?.name || "Guest User"}
           </span>
           <span className="block text-xs">
-            {userData?.selected_course || "No Course Selected"}
+            {userData?.user_type=="admin"?"Admin":
+            userData?.selected_course=="OS"?"A2":userData?.selected_course=="Both"?"Composite":"AS"} 
           </span>
         </span>
 
