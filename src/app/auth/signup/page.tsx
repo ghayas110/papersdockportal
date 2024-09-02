@@ -39,7 +39,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://be.papersdock.com/users/create-user", {
+      const response = await fetch("https://be.papersdock.com/users/create-user", {
         method: "POST",
         headers: {
           "x-api-key": "lms_API",

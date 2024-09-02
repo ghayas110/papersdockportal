@@ -38,7 +38,7 @@ const NotesView: React.FC = () => {
   }, []);
   const fetchNotes = async () => {
     try {
-      const response = await fetch('http://be.papersdock.com/notes/get-all-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/get-all-notes', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -58,7 +58,7 @@ const NotesView: React.FC = () => {
 
   const handleViewNote = (note: Note) => {
     const noteAttachment = note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment;
-    setPdfUrl(`http://be.papersdock.com${noteAttachment}`);
+    setPdfUrl(`https://be.papersdock.com${noteAttachment}`);
     setSelectedNote(note);
     setViewModalOpen(true);
   };
@@ -133,10 +133,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -149,10 +149,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>
@@ -180,10 +180,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -196,10 +196,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>
@@ -222,10 +222,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.dark_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.dark_note_attachment}`}
                     />
                   ))}
               </div>
@@ -238,10 +238,10 @@ const NotesView: React.FC = () => {
                     <NotesCard
                       key={note.note_id}
                       notesId={note.note_id}
-                      image={`http://be.papersdock.com${note.note_bg_image}`}
+                      image={`https://be.papersdock.com${note.note_bg_image}`}
                       title={note.note_title}
-                      viewNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
-                      downloadNotesUrl={`http://be.papersdock.com${note.light_note_attachment}`}
+                      viewNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
+                      downloadNotesUrl={`https://be.papersdock.com${note.light_note_attachment}`}
                     />
                   ))}
               </div>

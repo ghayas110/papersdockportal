@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   const onToken = async (token: any) => {
     try {
       console.log(token, "SADasdasdasda")
-      const response = await axios.post(`http://be.papersdock.com/checkout`, { token, product });
+      const response = await axios.post(`https://be.papersdock.com/checkout`, { token, product });
       console.log(response, "sdadasdasdad");
       message.success("Payment successful!");
     } catch (error) {
@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://be.papersdock.com/users/login-user", {
+      const response = await fetch("https://be.papersdock.com/users/login-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

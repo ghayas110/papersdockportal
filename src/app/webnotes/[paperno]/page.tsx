@@ -45,7 +45,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch('http://be.papersdock.com/notes/get-all-web-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/get-all-web-notes', {
         headers: {
           'x-api-key': 'lms_API',
         },
@@ -89,7 +89,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
     if (selectedNote) {
       setDeleteLoading(true);
       try {
-        const response = await fetch('http://be.papersdock.com/notes/delete-web-notes', {
+        const response = await fetch('https://be.papersdock.com/notes/delete-web-notes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         formData.append('note', fileList[0].originFileObj);
       }
 
-      const response = await fetch('http://be.papersdock.com/notes/create-web-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/create-web-notes', {
         method: 'POST',
         headers: {
           'x-api-key': 'lms_API',
@@ -162,7 +162,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
           formData.append('note', fileList[0].originFileObj);
         }
 
-        const response = await fetch('http://be.papersdock.com/notes/update-web-notes', {
+        const response = await fetch('https://be.papersdock.com/notes/update-web-notes', {
           method: 'POST',
           headers: {
             'x-api-key': 'lms_API',
@@ -194,7 +194,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
   };
 
   const handleViewNote = (note: Note) => {
-    setPdfUrl(`http://be.papersdock.com${note.note_url}`);
+    setPdfUrl(`https://be.papersdock.com${note.note_url}`);
     setViewModalOpen(true);
   };
 

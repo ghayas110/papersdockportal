@@ -53,7 +53,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch('http://be.papersdock.com/notes/get-all-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/get-all-notes', {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -91,14 +91,14 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       uid: '-1',
       name: note.note_bg_image.split('/').pop(),
       status: 'done',
-      url: `http://be.papersdock.com${note.note_bg_image}`,
+      url: `https://be.papersdock.com${note.note_bg_image}`,
     }]);
 
     setNotesFileList([{
       uid: '-2',
       name: note.note_type === 'dark_mode' ? note.dark_note_attachment.split('/').pop() : note.light_note_attachment.split('/').pop(),
       status: 'done',
-      url: `http://be.papersdock.com${note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment}`,
+      url: `https://be.papersdock.com${note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment}`,
     }]);
 
     setEditModalOpen(true);
@@ -113,7 +113,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
     setIsDeleteLoading(true);
     if (selectedNote) {
       try {
-        const response = await fetch('http://be.papersdock.com/notes/delete-notes', {
+        const response = await fetch('https://be.papersdock.com/notes/delete-notes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
         formData.append('notes', notesFileList[0].originFileObj);
       }
 
-      const response = await fetch('http://be.papersdock.com/notes/create-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/create-notes', {
         method: 'POST',
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
@@ -197,7 +197,7 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
           formData.append('notes', notesFileList[0].originFileObj);
         }
 
-        const response = await fetch('http://be.papersdock.com/notes/update-notes', {
+        const response = await fetch('https://be.papersdock.com/notes/update-notes', {
           method: 'POST',
           headers: {
             'accesstoken': `Bearer ${accessToken}`,
@@ -235,12 +235,12 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
 
   const handleViewNote = (note: Note) => {
     const noteAttachment = note.note_type === 'dark_mode' ? note.dark_note_attachment : note.light_note_attachment;
-    setPdfUrl(`http://be.papersdock.com${noteAttachment}`);
+    setPdfUrl(`https://be.papersdock.com${noteAttachment}`);
     setViewNoteModalOpen(true);
   };
 
   const handleViewImage = (note: Note) => {
-    setImageUrl(`http://be.papersdock.com${note.note_bg_image}`);
+    setImageUrl(`https://be.papersdock.com${note.note_bg_image}`);
     setViewImageModalOpen(true);
   };
 

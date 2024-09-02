@@ -32,7 +32,7 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch('http://be.papersdock.com/notes/get-all-web-notes', {
+      const response = await fetch('https://be.papersdock.com/notes/get-all-web-notes', {
         headers: {
           'x-api-key': 'lms_API',
         },
@@ -52,7 +52,7 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
   };
 
   const handleViewNote = (note: Note) => {
-    setPdfUrl(`http://be.papersdock.com${note.note_url}`);
+    setPdfUrl(`https://be.papersdock.com${note.note_url}`);
     setViewModalOpen(true);
   };
 

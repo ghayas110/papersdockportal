@@ -17,7 +17,7 @@ const ECommerce: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch("http://be.papersdock.com/users/get-dashboard-counts", {
+        const response = await fetch("https://be.papersdock.com/users/get-dashboard-counts", {
           headers: {
             "accesstoken": `Bearer ${accessToken}`,
             "x-api-key": "lms_API",
