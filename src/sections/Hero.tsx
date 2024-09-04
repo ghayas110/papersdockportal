@@ -1,6 +1,8 @@
+"use client";
 import Image from 'next/image';
-
+import { useRouter } from 'next/navigation';
 export default function Hero() {
+    const router = useRouter();
     return (
         <section
             className="flex flex-col justify-center items-center text-center h-screen"
@@ -14,7 +16,7 @@ export default function Hero() {
                 <Image src="/images/logo/logo00001.png" alt="Papers Dock" width={300} height={10} />
             </div>
             <button style={{ textAlign: "center", borderRadius: "10px", borderColor: "white", color: "white", backgroundColor: "#1C3A50" }}
-                className="bg-[#1C3A50] hover:bg-[#1C3A50] text-white font-bold py-2 px-4 rounded-full"
+                className="bg-[#1C3A50] hover:bg-[#1C3A50] text-white font-bold py-2 px-4 rounded-full" onClick={()=>{router.push("/auth/signin")}}
             >
                 Student Portal
             </button>
