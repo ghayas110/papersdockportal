@@ -1,4 +1,3 @@
-//typescript rafcce
 import Image from "next/image";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -8,20 +7,26 @@ import Hero from "@/sections/Hero";
 import Resource from "../Resource/page";
 import Footer from "../Footer/page";
 import Contact from "../Contact/page";
+import Stats from "@/sections/Stats";
 
 export const metadata: Metadata = {
     title: "PapersDock",
-    description: "Eduction Platform",
+    description: "Education Platform",
 };  
 
 export default function HomeScreen() {
     return (
-        <section className="bg-zinc-800 h-screen">
-        <Header/>
-     <Hero/>
-     <Resource/>
-     <Contact/>
-
+        <section
+          
+            style={{
+                background: "linear-gradient(#010E24,#4e7387,#010E24, #010E24,#010E24, #4e7387, #010E24)",
+            }}
+        >
+            <Header />
+            <Hero />
+            <Stats/>
+            <Resource />
+            <Contact />
         </section>
     );
 }

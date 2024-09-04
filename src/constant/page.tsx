@@ -93,29 +93,34 @@ export const featuresData = [
 ];
 export const resourceData =[
     {
-        notesId: "abc123",
-        image: "images/cover/PAPER1.png",
-        title: "paper1",
+        notesId: "paper1",
+        desc:"Theory Fundamentals",
+        title: "P1",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       
       },
       {
-        notesId: "abc124",
-        image: "/images/cover/PAPER2.png",
-        title: "paper2",
+        notesId: "paper2",
+        desc:"Problem Solving Programming Skills",
+        title: "P2",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       },
       {
-        notesId: "abc125",
-        image: "/images/cover/PAPER3.png",
-        title: "paper3",
+        notesId: "paper3",
+        desc:"Advanced Theory",
+        title: "P3",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       },
       {
-        notesId: "abc125",
-        image: "/images/cover/PAPER4.png",
-        title: "paper4",
+        notesId: "paper4",
+        desc:"Practical Applications",
+        title: "P4",
         viewNotesUrl: "https://example.com/view-notes/abc123",
       }
 
 ] 
+export const statistics = [
+  { value: '100+', label: 'View Count' },
+  { value: '75k+', label: 'Subscribers' },
+  { value: '10M+', label: 'Videos ' },
+];

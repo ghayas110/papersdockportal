@@ -1,11 +1,12 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import MenuData from './menuData'
-const Header = () => {
+const Header2 = () => {
    // Navbar toggle
+   const router = useRouter();
    const [navbarOpen, setNavbarOpen] = useState(false);
    const navbarToggleHandler = () => {
      setNavbarOpen(!navbarOpen);
@@ -50,14 +51,10 @@ const Header = () => {
     <ul className="flex items-center gap-4">
 
 
-    {
-      MenuData.map((item)=>{
-        return <li key={item.id} className='cursor-pointer,hover:text-primary,duration-300 text-white'>
-          <Link className='' href={item.path} >{item.title}</Link>
+   <li  className='cursor-pointer,hover:text-primary,duration-300 text-white'>
+          <Link className='' href={"/"} >Home</Link>
           </li>
-      })
-
-    }
+    
         </ul>
   
 <div>
@@ -74,4 +71,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default Header2

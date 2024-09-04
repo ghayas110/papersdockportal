@@ -3,8 +3,8 @@
 import { Table, Button, Modal, message } from 'antd';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
-import Header from '@/sections/Header';
 
+import Header2 from '@/sections/Header2';
 interface Note {
   note_id: string;
   note_url: string;
@@ -57,11 +57,7 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
   };
 
   const columns = [
-    {
-      title: 'Note ID',
-      dataIndex: 'note_id',
-      key: 'note_id',
-    },
+
     {
       title: 'Note Title',
       dataIndex: 'note_url',
@@ -87,10 +83,14 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
   ];
 
   return (
-    <section className="bg-zinc-800 h-screen">
-      <Header />
+    <section
+    style={{
+      background: "linear-gradient(#010E24,#4e7387,#010E24, #010E24,#010E24, #4e7387, #010E24)",
+  }}
+    className="h-screen">
+      <Header2/>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8 text-white">Web Notes for Paper {paperNo}</h1>
+
         <Table columns={columns} dataSource={notes} rowKey="note_id" />
 
         {/* View Note Modal */}

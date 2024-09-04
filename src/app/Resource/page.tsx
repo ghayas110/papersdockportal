@@ -2,11 +2,14 @@ import ResourceCard from "@/components/ResourceCard/Resource";
 import SectionTitle from "@/components/SectionTitle";
 import SingleFeature from "@/components/SingleFeature";
 import { featuresData, resourceData } from "@/constant/page";
-
+// notesId: "paper1",
+// desc:"Theory Fundamentals",
+// title: "P1",
+// viewNotesUrl: "https://example.com/view-notes/abc123",
 const Features = () => {
   return (
     <>
-      <section id="resource" className="py-16 px-10 md:py-20 lg:py-28 bg-zinc-800">
+      <section id="resource" className="py-16 px-10 md:py-20 lg:py-28 items-center justify-center,flex">
         <div className="container">
           <SectionTitle
             title="Resources"
@@ -18,8 +21,9 @@ const Features = () => {
           <ResourceCard
             key={feature.notesId}
             notesId={feature.notesId}
-            image={feature.image}
+      
             title={feature.title}
+            desc={feature.desc}
             viewNotesUrl={feature.viewNotesUrl}
        
           />

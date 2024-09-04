@@ -1,59 +1,27 @@
-import { bigShoe1 } from '@/assets/images/page';
 import Image from 'next/image';
-import React from 'react';
 
-const HeroSection: React.FC = () => {
-  return (
-    <section id="hero" className="relative bg-zinc-800">
-      <div
-        style={{
-          width: '100vw',
-          height: '90vh',
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          padding: '20px',
-        }}
-      >
-        <div className="flex flex-col ">
-          <div className="relative ">
-            <p className="text-xl font-montserrat text-coral-red text-white ">
-              Papers Dock
-            </p>
-           
-            <br/>
-            <h1 className="font-montserrat font-bold text-white ">
-              <span
-                style={{ display: 'block', whiteSpace: 'nowrap' }}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl  xl:text-8xl"
-              >
-                Advanced Academia
-              </span>
-             <br/>
-              <span
-                style={{ display: 'block', whiteSpace: 'nowrap' }}
-                className=" mt-3 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl"
-              >
-                Mastering <span style={{color:'#EADEA1'}}>
-                  
-                  A Levels
-                  </span>
-              </span>
-            </h1>
-        
-            <p className="font-montserrat text-slate-gray text-lg leading-8 mt-6 mb-14 sm:max-w-sm text-white">
-              Empowering students with comprehensive O and A level resources for
-              academic excellence.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <Image src={bigShoe1} alt="hero image" width={400} height={400} />
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default HeroSection;
+export default function Hero() {
+    return (
+        <section
+            className="flex flex-col justify-center items-center text-center h-screen"
+       
+        >
+            <div style={{  textAlign: "center",fontSize: "30px" }} className="mb-4 text-white text-xl sm:text-2xl lg:text-3xl">
+                "Empowering students globally to achieve top grades in A levels-computer science through affordable education."
+            </div>
+            <div className="mb-7">
+                {/* Replace this with your actual logo image */}
+                <Image src="/images/logo/logo00002.png" alt="Papers Dock" width={300} height={10} />
+                <Image src="/images/logo/logo00001.png" alt="Papers Dock" width={300} height={10} />
+            </div>
+            <button style={{  textAlign: "center",borderRadius: "10px",borderColor: "white",color: "white", backgroundColor: "#1C3A50" }}
+                className="bg-[#1C3A50] hover:bg-[#1C3A50] text-white font-bold py-2 px-4 rounded-full"
+            >
+                Student Portal
+            </button>
+            <div style={{  textAlign: "center",fontSize: "30px" }} className="mt-4 text-white text-lg sm:text-xl">
+                PapersDock: Anchoring Your Journey to Top Grades!
+            </div>
+        </section>
+    );
+}

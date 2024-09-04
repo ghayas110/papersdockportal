@@ -59,11 +59,11 @@ const AddAssignment: React.FC<AddAssignmentProps> = ({ params }) => {
       if (response.ok) {
         setAssignments(data.data);
       } else {
-        message.error(data.message);
+
       }
     } catch (error) {
       console.error('Failed to fetch assignments', error);
-      message.error('Failed to fetch assignments');
+  
     }
   };
 

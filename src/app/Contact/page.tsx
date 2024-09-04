@@ -56,13 +56,13 @@ const Contact: React.FC = (): JSX.Element => {
 
   return (
     <>
-      <div className=" p-10  bg-zinc-800" id="contact">
+      <div className=" p-10 " id="contact">
         <h1 className="text-4xl text-white font-bold text-center mb-8">Get in Touch</h1>
         <p className="text-xl text-center text-white mb-10">
           Have any questions or need assistance? Reach out to us through your
           preferred channel:
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-col items-center">
           <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg text-white">
             <Image className="w-8 h-8 mr-4" src="/images/cover/whatsapp.png" alt="WhatsApp us" width={36} height={36} />
             <div className="flex-grow">
@@ -71,34 +71,11 @@ const Contact: React.FC = (): JSX.Element => {
                 href="https://wa.me/12345678911"
                 className="text-white ml-1 hover:underline"
               >
-                0314-8008083
+               +92 318 2248934
               </a>
             </div>
           </div>
-          <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg text-white">
-            <Image className="w-8 h-8 mr-4" src="/images/cover/facebook.png" alt="DM us on Instagram" width={36} height={36} />
-            <div className="flex-grow">
-              <span className="text-lg font-semibold">DM us on Faccebook:</span>
-              <a
-                href="https://www.instagram.com/shoeseys/"
-                className="text-white ml-1 hover:underline"
-              >
-               PapersDock
-              </a>
-            </div>
-          </div>
-          <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg text-white">
-            <Image className="w-8 h-8 mr-4" src="/images/cover/gmail.png" alt="Email us at" width={36} height={36} />
-            <div className="flex-grow text-white">
-              <span className="text-lg font-semibold text-white">Email us at:</span>
-              <a
-                href="mailto:abc@gmail.com"
-                className="text-white ml-1 hover:underline"
-              >
-                papersdock@gmail.com
-              </a>
-            </div>
-          </div>
+      
         </div>
       </div>
 

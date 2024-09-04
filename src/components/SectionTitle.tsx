@@ -12,7 +12,7 @@ const SectionTitle: React.FC<{
         width,
         display: "flex",
         alignItems: center ? "center" : "flex-start",
-        justifyContent: center ? "center" : "flex-start",
+        justifyContent: center ? "center" : "flex-start", 
         marginBottom: mb,
       }}
     >
