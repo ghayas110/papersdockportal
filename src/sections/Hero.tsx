@@ -7,7 +7,7 @@ export default function Hero() {
         <section
             className="flex flex-col justify-center items-center text-center h-screen"
         >
-            <div style={{ textAlign: "center", fontSize: "30px" }} className="mb-4 text-white text-xl sm:text-2xl lg:text-3xl">
+            <div style={{ textAlign: "center", fontSize: "30px",padding:15 }} className="mb-4 text-white text-xl sm:text-2xl lg:text-3xl ">
                 &ldquo;Empowering students globally to achieve top grades in A levels-computer science through affordable education.&rdquo;
             </div>
             <div className="mb-7">
