@@ -64,16 +64,25 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
       message.error('Failed to fetch lecture');
     }
   };
+  let devToolsOpen = false;
+
   const detectDevTools = () => {
-    const element = new Image();
-    Object.defineProperty(element, 'id', {
-      get: function() {
-        alert('Donot use Developer Option');
+    const threshold = 160; // Threshold for detecting dev tools
+  
+    if (
+      window.outerWidth - window.innerWidth > threshold || 
+      window.outerHeight - window.innerHeight > threshold
+    ) {
+      if (!devToolsOpen) {
+        devToolsOpen = true;
+        alert('Developer tools opened! Action logged.');
       }
-    });
-    console.log(element);
+    } else {
+      devToolsOpen = false;
+    }
   };
   
+  // Continuously check for dev tools every second
   setInterval(() => {
     detectDevTools();
   }, 1000);
