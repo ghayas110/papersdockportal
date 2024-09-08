@@ -76,6 +76,7 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
       if (!devToolsOpen) {
         devToolsOpen = true;
         alert('Developer tools opened! Action logged.');
+        router.push('/');
       }
     } else {
       devToolsOpen = false;
