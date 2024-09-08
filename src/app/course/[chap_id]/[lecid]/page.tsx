@@ -79,12 +79,9 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
              
             </div>
             <div className="video-wrapper">
-              <ReactPlayer
-                url={`https://be.papersdock.com${lecture.file_url}`}
-                controls
-                width="100%"
-                height="100%"
-              />
+            <video src={`https://be.papersdock.com${lecture.file_url}`} controls   onContextMenu={(e) => e.preventDefault()}  // Prevent right-click
+      controlsList="nodownload"  // Add 'nodownload' attribute to HTML5 video controls
+           />
             </div>
           </>
         ) : (

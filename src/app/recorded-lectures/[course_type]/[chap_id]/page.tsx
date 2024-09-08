@@ -395,7 +395,10 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           footer={null}
           onCancel={() => setViewModalOpen(false)}
         >
-          {videoUrl && <video src={videoUrl} controls style={{ width: '100%' }} />}
+          {videoUrl && <video src={videoUrl} controls   onContextMenu={(e) => e.preventDefault()}  // Prevent right-click
+      controlsList="nodownload"  // Add 'nodownload' attribute to HTML5 video controls
+      style={{ pointerEvents: 'none' }}  // Prevent interaction with default video controls
+           />}
         </Modal>
       </div>
     </DefaultLayout>
