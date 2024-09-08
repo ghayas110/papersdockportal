@@ -64,13 +64,23 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
       message.error('Failed to fetch lecture');
     }
   };
+  useEffect(() => {
+    const handleContextMenu = (e: { preventDefault: () => void; }) => {
+      e.preventDefault();
+    };
 
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, []);
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
         {lecture ? (
           <>
-            <div className="mb-8">
+            <div className="mb-8"  onContextMenu={(e) => e.preventDefault()}>
             <div className="flex justify-between">
         <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
         <h1 className="text-3xl font-bold mb-8">{lecture.title}</h1>
