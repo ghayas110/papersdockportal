@@ -11,7 +11,7 @@ interface NotesCardProps {
 const NotesCard: React.FC<NotesCardProps> = ({ image, title, viewNotesUrl, downloadNotesUrl }) => {
   return (
     <div className="max-w-lg rounded overflow-hidden shadow-lg bg-white m-4">
-      <div className="w-full h-48 overflow-hidden">
+      <div className="w-full  overflow-hidden">
         <img className="w-full h-full object-cover" src={image} alt={title} />
       </div>
       <div className="px-6 py-4">

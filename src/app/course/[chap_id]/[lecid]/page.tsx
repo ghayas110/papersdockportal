@@ -77,7 +77,7 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
         devToolsOpen = true;
     
         router.push('/');
-        message.error('Dev tools detected. Please Do not use SevTools on Lectures');
+        message.error('Dev tools detected. Please Do not use DevTools in Lectures');
       }
     } else {
       devToolsOpen = false;
