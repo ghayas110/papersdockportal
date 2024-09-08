@@ -64,6 +64,19 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
       message.error('Failed to fetch lecture');
     }
   };
+  const detectDevTools = () => {
+    const element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: function() {
+        alert('Donot use Developer Option');
+      }
+    });
+    console.log(element);
+  };
+  
+  setInterval(() => {
+    detectDevTools();
+  }, 1000);
   useEffect(() => {
     const handleContextMenu = (e: { preventDefault: () => void; }) => {
       e.preventDefault();
