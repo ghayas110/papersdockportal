@@ -1,10 +1,11 @@
 "use client";
 
-import { Table, Button, Modal, message } from 'antd';
+import { Modal, message } from 'antd';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
 
 import Header2 from '@/sections/Header2';
+
 interface Note {
   note_id: string;
   note_url: string;
@@ -25,9 +26,7 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
   const paperNo = params.paperid;
 
   useEffect(() => {
-
-      fetchNotes();
-    
+    fetchNotes();
   }, [paperNo]);
 
   const fetchNotes = async () => {
@@ -38,10 +37,9 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
         },
       });
       const data = await response.json();
-  
+
       if (response.ok) {
         setNotes(data.data.filter((note: any) => note.paper === paperNo));
-     
       } else {
         message.error(data.message);
       }
@@ -56,42 +54,61 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
     setViewModalOpen(true);
   };
 
-  const columns = [
-
-    {
-      title: 'Note Title',
-      dataIndex: 'note_url',
-      key: 'note_url',
-      render: (text: string) => {
-        const fileName = text.split('/').pop();
-        return fileName;
-      },
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text: string) => moment(text).format('YYYY-MM-DD'),
-    },
-    {
-      title: 'Download Note',
-      key: 'note_url',
-      render: (text: string, record: Note) => (
-        <Button type="link" onClick={() => handleViewNote(record)}>View Note</Button>
-      ),
-    },
-  ];
+  const formatFileName = (noteUrl: string) => {
+    const fileName = noteUrl.split('/').pop() || ""; // Get file name
+    const nameWithoutExtension = fileName.replace('.pdf', ''); // Remove .pdf extension
+    // Remove any text before the dash, if present
+    const formattedName = nameWithoutExtension.includes('-')
+      ? nameWithoutExtension.split('-')[1].trim()
+      : nameWithoutExtension;
+    return formattedName;
+  };
 
   return (
     <section
-    style={{
-      background: "linear-gradient(#010E24,#4e7387,#010E24, #010E24,#010E24, #4e7387, #010E24)",
-  }}
-    className="h-screen">
-      <Header2/>
-      <div className="container mx-auto p-8">
+      style={{
+        background: "linear-gradient(#010E24,#4e7387,#010E24, #010E24,#010E24, #4e7387, #010E24)",
+      }}
+      className="h-screen"
+    >
+      <Header2 />
+      <div className="container mx-auto p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {notes.map((note) => {
+          const fileName = formatFileName(note.note_url); // Format the file name
+          return (
+            <div
+              key={note.note_id}
+              className="flex flex-col items-center justify-center bg-[#010E24] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              style={{ width: '240px', height: '250px', cursor: 'pointer' }}
+              onClick={() => handleViewNote(note)}
+            >
+              {/* White portion on top */}
+              <div
+                className="w-full bg-white text-center py-2"
+                style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
+              >
+                <h3 style={{ fontWeight: 'bold', fontSize: '14px', margin: '0', color: '#010E24' }}>
+                {(fileName).toUpperCase()}
+                </h3>
+              </div>
 
-        <Table columns={columns} dataSource={notes} rowKey="note_id" />
+              {/* Main Content */}
+              <div
+                className="flex-1 flex flex-col items-center justify-center"
+                style={{  textAlign: 'center'  }}
+              >
+                         <h1 style={{ fontWeight: 'bold', fontSize: '24px', color: 'white' }}>    Papers Dock</h1>
+                <h1 style={{ fontWeight: 'bold', fontSize: '24px', color: 'yellow', margin: '8px 0'}}>{(fileName).toUpperCase()}</h1>
+                <p style={{ color: 'yellow', fontSize: '16px', margin: '8px 0', fontWeight: 'bold' }}>
+              {(paperNo).toUpperCase()}
+                </p>
+                <p style={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}>
+                {moment(note.created_at).format('MMMM Do YYYY')}
+                </p>
+              </div>
+            </div>
+          );
+        })}
 
         {/* View Note Modal */}
         <Modal
