@@ -31,6 +31,7 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('8'); // Default to August
   const [selectedYear, setSelectedYear] = useState<string>('2024'); // Default to 2024
+  const [selectedStatus, setSelectedStatus] = useState<string>(''); // For status filter
   const router = useRouter();
 
   const classId = params.classId;
@@ -52,7 +53,6 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
         }
       );
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
         const formattedData = data.data
           .filter((fee: any) => fee.selected_course === classId)
@@ -81,8 +81,17 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     const filtered = feeData.filter((fee) =>
-      fee.studentName.toLowerCase().includes(value.toLowerCase()) ||
-      fee.studentId.includes(value)
+      (fee.studentName.toLowerCase().includes(value.toLowerCase()) || fee.studentId.includes(value)) &&
+      (selectedStatus ? fee.status === selectedStatus : true)
+    );
+    setFilteredData(filtered);
+  };
+
+  const handleStatusFilter = (value: string) => {
+    setSelectedStatus(value);
+    const filtered = feeData.filter((fee) =>
+      (searchTerm ? (fee.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || fee.studentId.includes(searchTerm)) : true) &&
+      (value ? fee.status === value : true)
     );
     setFilteredData(filtered);
   };
@@ -220,6 +229,20 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
                 {year}
               </Select.Option>
             ))}
+          </Select>
+
+          {/* New Status Filter */}
+          <Select
+            placeholder="Filter by Status"
+            style={{ width: 200 }}
+            onChange={handleStatusFilter}
+            allowClear
+          >
+            <Select.Option value="not paid">Unpaid</Select.Option>
+            <Select.Option value="pending">Paid</Select.Option>
+            <Select.Option value="waiting approval">Waiting Approval</Select.Option>
+            <Select.Option value="approved">Approved</Select.Option>
+            <Select.Option value="rejected">Rejected</Select.Option>
           </Select>
         </div>
 
