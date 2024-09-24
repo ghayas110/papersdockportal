@@ -145,7 +145,7 @@ const StudentFeePage: React.FC = () => {
     const printContents = invoiceRef.current?.innerHTML;
   
     if (printContents) {
-      const printWindow = window.open('', '_self');
+      const printWindow = window.open('', '_blank');
       printWindow?.document.write(`
         <html>
           <head>
@@ -164,7 +164,6 @@ const StudentFeePage: React.FC = () => {
       printWindow?.focus();
       printWindow?.print();
       printWindow?.close();
-      window.location.href='/fees'
       setPaymentSuccess(false);
       setInvoiceData(null);
     }
