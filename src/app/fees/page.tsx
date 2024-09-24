@@ -149,6 +149,9 @@ const StudentFeePage: React.FC = () => {
       printWindow?.document.write(`
         <html>
           <head>
+          <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
             <title>Invoice</title>
             <style>
               body { font-family: Arial, sans-serif; margin: 20px; }
