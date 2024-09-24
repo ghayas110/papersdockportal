@@ -143,15 +143,10 @@ const StudentFeePage: React.FC = () => {
 
   const handlePrint = () => {
     const printContents = invoiceRef.current?.innerHTML;
-  
+    const isMobileOrIpad = /Mobi|iPad/i.test(navigator.userAgent);
+    const target = isMobileOrIpad ? '_self' : '_blank';
     if (printContents) {
-      // Determine the target based on the user agent
-      const isMobileOrIpad = /Mobi|iPad/i.test(navigator.userAgent);
-      const target = isMobileOrIpad ? '_self' : '_blank';
-  
-      const printWindow = window.open('', target, 'width=800,height=600');
-  
-      // Write the content to the new window
+      const printWindow = window.open('', target);
       printWindow?.document.write(`
         <html>
           <head>
@@ -167,21 +162,15 @@ const StudentFeePage: React.FC = () => {
         </html>
       `);
       printWindow?.document.close();
-  
-      // Focus and print
       printWindow?.focus();
       printWindow?.print();
-  
-      // Handle the closing of the print window
-      if (!isMobileOrIpad) {
-        printWindow?.close();
-      }
-  
-      setPaymentSuccess(false);
-      setInvoiceData(null);
+      printWindow?.close();
+      setPaymentSuccess(false)
+      setInvoiceData(null)
     }
   };
-  
+
+
 
   const handleCancel = () => {
     setIsModalVisible(false);
