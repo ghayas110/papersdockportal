@@ -143,15 +143,12 @@ const StudentFeePage: React.FC = () => {
 
   const handlePrint = () => {
     const printContents = invoiceRef.current?.innerHTML;
-
+  
     if (printContents) {
-      const printWindow = window.open('', '_blank', 'width=800,height=600');
-      printWindow?.document.write(`
+      const printWindow = window.open('', '_self');
+      printWindow.document.write(`
         <html>
           <head>
-          <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
             <title>Invoice</title>
             <style>
               body { font-family: Arial, sans-serif; margin: 20px; }
@@ -163,14 +160,15 @@ const StudentFeePage: React.FC = () => {
           </body>
         </html>
       `);
-      printWindow?.document.close();
-      printWindow?.focus();
-      printWindow?.print();
-      printWindow?.close();
-      setPaymentSuccess(false)
-      setInvoiceData(null)
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+      setPaymentSuccess(false);
+      setInvoiceData(null);
     }
   };
+  
   const handleCancel = () => {
     setIsModalVisible(false);
     setSelectedFee(null);
