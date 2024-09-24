@@ -164,7 +164,7 @@ const StudentFeePage: React.FC = () => {
       printWindow?.focus();
       printWindow?.print();
       printWindow?.close();
-      window.location.reload(false)
+      window.location.href='/fees'
       setPaymentSuccess(false);
       setInvoiceData(null);
     }
