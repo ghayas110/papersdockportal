@@ -146,7 +146,7 @@ const StudentFeePage: React.FC = () => {
   
     if (printContents) {
       const printWindow = window.open('', '_self');
-      printWindow.document.write(`
+      printWindow?.document.write(`
         <html>
           <head>
             <title>Invoice</title>
@@ -160,10 +160,10 @@ const StudentFeePage: React.FC = () => {
           </body>
         </html>
       `);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
+      printWindow?.document.close();
+      printWindow?.focus();
+      printWindow?.print();
+      printWindow?.close();
       setPaymentSuccess(false);
       setInvoiceData(null);
     }
