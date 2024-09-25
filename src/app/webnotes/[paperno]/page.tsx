@@ -11,7 +11,9 @@ interface Note {
   note_id: string;
   paper: string;
   note_url: string;
+  image: string;
   created_at: string;
+  name: string;
 }
 
 interface PaperProps {
@@ -26,10 +28,13 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [isViewModalOpen, setViewModalOpen] = useState(false);
+  const [isViewPdfModalOpen, setViewPdfModalOpen] = useState(false);
+  const [isViewImageModalOpen, setViewImageModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
+  const [imageList, setImageList] = useState<any[]>([]);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [form] = Form.useForm();
   const [addLoading, setAddLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -51,7 +56,6 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         },
       });
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
         setNotes(data.data.filter((note: any) => note.paper === paperNo));
       } else {
@@ -67,6 +71,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
     setSelectedNote(null);
     form.resetFields();
     setFileList([]);
+    setImageList([]);
     setAddModalOpen(true);
   };
 
@@ -75,8 +80,10 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
     form.setFieldsValue({
       note_id: note.note_id,
       paper: note.paper,
+      name: note.name,
     });
     setFileList([]);
+    setImageList([]);
     setEditModalOpen(true);
   };
 
@@ -121,8 +128,12 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
       setAddLoading(true);
       const formData = new FormData();
       formData.append('paper', paperNo);
+      formData.append('name', values.name);
       if (fileList.length > 0) {
         formData.append('note', fileList[0].originFileObj);
+      }
+      if (imageList.length > 0) {
+        formData.append('noteImage', imageList[0].originFileObj);
       }
 
       const response = await fetch('https://be.papersdock.com/notes/create-web-notes', {
@@ -147,6 +158,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
       setAddLoading(false);
       setAddModalOpen(false);
       setFileList([]);
+      setImageList([]);
     }
   };
 
@@ -158,8 +170,12 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         const formData = new FormData();
         formData.append('note_id', selectedNote.note_id);
         formData.append('paper', paperNo);
+        formData.append('name', values.name);
         if (fileList.length > 0) {
           formData.append('note', fileList[0].originFileObj);
+        }
+        if (imageList.length > 0) {
+          formData.append('noteImage', imageList[0].originFileObj);
         }
 
         const response = await fetch('https://be.papersdock.com/notes/update-web-notes', {
@@ -186,6 +202,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
       setEditModalOpen(false);
       setSelectedNote(null);
       setFileList([]);
+      setImageList([]);
     }
   };
 
@@ -193,38 +210,48 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
     setFileList(fileList);
   };
 
+  const handleImageUploadChange = ({ fileList }: any) => {
+    setImageList(fileList);
+  };
+
   const handleViewNote = (note: Note) => {
     setPdfUrl(`https://be.papersdock.com${note.note_url}`);
-    setViewModalOpen(true);
+    setViewPdfModalOpen(true);
+  };
+
+  const handleViewImage = (note: Note) => {
+    setImageUrl(`https://be.papersdock.com${note.image}`);
+    setViewImageModalOpen(true);
   };
 
   const columns = [
     {
-      title: 'Note ID',
-      dataIndex: 'note_id',
-      key: 'note_id',
-    },
-    {
-      title: 'Note Title',
-      dataIndex: 'note_url',
-      key: 'note_url',
-      render: (text: string) => {
-        const fileName = text.split('/').pop();
-        return fileName;
-      },
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text: string) => moment(text).format('YYYY-MM-DD'),
+      title: 'Note Name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: 'View Note',
       key: 'note_url',
       render: (text: string, record: Note) => (
-        <Button type="link" onClick={() => handleViewNote(record)}>View Note</Button>
+        <Button type="link" onClick={() => handleViewNote(record)}>
+          View Note
+        </Button>
       ),
+    },
+    {
+      title: 'View Note Image',
+      key: 'image',
+      render: (text: string, record: Note) => (
+        <Button type="link" onClick={() => handleViewImage(record)}>
+          View Note Image
+        </Button>
+      ),
+    },
+    {
+      title: 'Paper',
+      dataIndex: 'paper',
+      key: 'paper',
     },
     {
       title: 'Action',
@@ -251,7 +278,7 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8"> {paperNo}</h1>
+        <h1 className="text-3xl font-bold mb-8">{paperNo}</h1>
         <Button
           type="primary"
           className="mb-4"
@@ -273,6 +300,13 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         >
           <Form form={form} layout="vertical" name="add_note_form">
             <Form.Item
+              name="name"
+              label="Note Name"
+              rules={[{ required: true, message: 'Please input the note name!' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
               name="note"
               label="Upload Note File"
               rules={[{ required: true, message: 'Please upload a note file!' }]}
@@ -283,6 +317,19 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
                 fileList={fileList}
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+            </Form.Item>
+            <Form.Item
+              name="noteImage"
+              label="Upload Note Image"
+              rules={[{ required: false, message: 'Please upload a note image!' }]}
+            >
+              <Upload
+                beforeUpload={() => false}
+                onChange={handleImageUploadChange}
+                fileList={imageList}
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload Image</Button>
               </Upload>
             </Form.Item>
           </Form>
@@ -299,6 +346,13 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         >
           <Form form={form} layout="vertical" name="edit_note_form">
             <Form.Item
+              name="name"
+              label="Note Name"
+              rules={[{ required: true, message: 'Please input the note name!' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
               name="note"
               label="Upload Note File"
               rules={[{ required: false, message: 'Please upload a note file!' }]}
@@ -309,6 +363,19 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
                 fileList={fileList}
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+            </Form.Item>
+            <Form.Item
+              name="noteImage"
+              label="Upload Note Image"
+              rules={[{ required: false, message: 'Please upload a note image!' }]}
+            >
+              <Upload
+                beforeUpload={() => false}
+                onChange={handleImageUploadChange}
+                fileList={imageList}
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload Image</Button>
               </Upload>
             </Form.Item>
           </Form>
@@ -329,11 +396,21 @@ const AddWebNotes: React.FC<PaperProps> = ({ params }) => {
         {/* View Note Modal */}
         <Modal
           title="View Note"
-          open={isViewModalOpen}
+          open={isViewPdfModalOpen}
           footer={null}
-          onCancel={() => setViewModalOpen(false)}
+          onCancel={() => setViewPdfModalOpen(false)}
         >
           {pdfUrl && <iframe src={pdfUrl} style={{ width: '100%', height: '500px' }} />}
+        </Modal>
+
+        {/* View Note Image Modal */}
+        <Modal
+          title="View Note Image"
+          open={isViewImageModalOpen}
+          footer={null}
+          onCancel={() => setViewImageModalOpen(false)}
+        >
+          {imageUrl && <img src={imageUrl} alt="Note Image" style={{ width: '100%', height: '500px' }} />}
         </Modal>
       </div>
     </DefaultLayout>
