@@ -243,7 +243,7 @@ const StudentFeePage: React.FC = () => {
           footer={[
             <StripeCheckout
               key="stripe"
-              amount={product.price} // Assuming the amount is in cents
+              amount={product.price*100} // Assuming the amount is in cents
               name={product.name}
               email={product.email}
               stripeKey="pk_live_51MFHJKIWbzOPJLuU3S9gFAxEocJH5X0ynjFszA0LAvvHaUccB9lL5SZ8e2dKd7ZhPGYWuH98xUJcLkp3btITy9U700e0S20Hco"
