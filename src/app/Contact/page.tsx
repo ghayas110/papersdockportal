@@ -1,7 +1,67 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
+import axios from "axios";
+import { Button, message } from "antd";
+import StripeCheckout from "react-stripe-checkout";
 const Contact: React.FC = (): JSX.Element => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null)
+  const [invoiceData, setInvoiceData] = useState<any>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [product, setproduct] = useState({
+    "price": '',
+    "name": ``,
+    "email": ``
+  })
+  const onToken = async (token: any) => {
+    try {
+      const response = await axios.post('https://be.papersdock.com/checkout', { token });
+      if (response.status === 200) {
+        const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
+        const date = new Date().toLocaleDateString(); // Current date
+
+       
+
+        message.success('Payment successful!');
+        setPaymentSuccess(true);
+      } else {
+        message.error('Payment failed, please try again.');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      message.error('Payment failed, please try again.');
+    }
+  };
+
+  const handlePrint = () => {
+    const printContents = invoiceRef.current?.innerHTML;
+    const isMobileOrIpad = /Mobi|iPad/i.test(navigator.userAgent);
+    const target = isMobileOrIpad ? '_self' : '_blank';
+    if (printContents) {
+      const printWindow = window.open('', target);
+      printWindow?.document.write(`
+        <html>
+          <head>
+            <title>Invoice</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .invoice-container { padding: 20px; border: 1px solid #ddd; }
+            </style>
+          </head>
+          <body>
+            <div class="invoice-container">${printContents}</div>
+          </body>
+        </html>
+      `);
+      printWindow?.document.close();
+      printWindow?.focus();
+      printWindow?.print();
+      printWindow?.close();
+      setPaymentSuccess(false)
+      setInvoiceData(null)
+    }
+  };
   const accordionData: Array<{ title: string; content: React.ReactNode }> = [
     {
       title: "Refund Policy",
@@ -75,7 +135,28 @@ const Contact: React.FC = (): JSX.Element => {
               </a>
             </div>
           </div>
-      
+          <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg mt-10 text-white">
+            <div className="flex-grow">
+              <span className="text-lg text-white font-semibold">Intenational</span>
+              <StripeCheckout
+              amount={50000}
+              key="stripe"
+              stripeKey="pk_live_51MFHJKIWbzOPJLuU3S9gFAxEocJH5X0ynjFszA0LAvvHaUccB9lL5SZ8e2dKd7ZhPGYWuH98xUJcLkp3btITy9U700e0S20Hco"
+            token={onToken}
+              locale="auto"
+            />,
+            {paymentSuccess && (
+              <Button
+                key="print"
+                type="primary"
+                onClick={handlePrint}
+                style={{ backgroundColor: 'black', borderColor: 'black' }}
+              >
+                Download Invoice
+              </Button>
+            )}
+            </div>
+          </div>
         </div>
       </div>
 
