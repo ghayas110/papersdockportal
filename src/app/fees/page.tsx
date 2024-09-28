@@ -300,7 +300,7 @@ const StudentFeePage: React.FC = () => {
         {paymentSuccess && invoiceData && (
           <div ref={invoiceRef}>
             <Invoice
-              amount={invoiceData.amount}
+              amount={invoiceData.amount*100}
               email={invoiceData.email}
               name={invoiceData.name}
               date={invoiceData.date}

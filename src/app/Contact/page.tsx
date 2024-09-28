@@ -10,6 +10,7 @@ const Contact: React.FC = (): JSX.Element => {
   const invoiceRef = useRef<HTMLDivElement>(null)
   const [invoiceData, setInvoiceData] = useState<any>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paybool,setpaybool]=useState(false)
   const [product, setproduct] = useState({
     "price": 0,
     "name": '',
@@ -52,6 +53,8 @@ const Contact: React.FC = (): JSX.Element => {
   };
 
   const handlePrint = () => {
+    setpaybool(true)
+    if(paybool){
     const printContents = invoiceRef.current?.innerHTML;
     const isMobileOrIpad = /Mobi|iPad/i.test(navigator.userAgent);
     const target = isMobileOrIpad ? '_self' : '_blank';
@@ -77,7 +80,9 @@ const Contact: React.FC = (): JSX.Element => {
       printWindow?.close();
       setPaymentSuccess(false)
       setInvoiceData(null)
+      setpaybool(false)
     }
+  }
   };
 
   const accordionData: Array<{ title: string; content: React.ReactNode }> = [
@@ -181,10 +186,10 @@ const Contact: React.FC = (): JSX.Element => {
             </div>
           </div>
         </div>
-        {paymentSuccess && invoiceData && (
+        {paybool&&paymentSuccess && invoiceData && (
           <div ref={invoiceRef}>
             <Invoice
-              amount={invoiceData.amount}
+              amount={invoiceData.amount*100}
               email={invoiceData.email}
               name={invoiceData.name}
               date={invoiceData.date}
