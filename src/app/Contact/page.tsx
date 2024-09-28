@@ -139,7 +139,6 @@ const Contact: React.FC = (): JSX.Element => {
             <div className="flex-grow">
               <span className="text-lg text-white font-semibold">Intenational</span>
               <StripeCheckout
-              amount={50000}
               key="stripe"
               stripeKey="pk_live_51MFHJKIWbzOPJLuU3S9gFAxEocJH5X0ynjFszA0LAvvHaUccB9lL5SZ8e2dKd7ZhPGYWuH98xUJcLkp3btITy9U700e0S20Hco"
             token={onToken}
