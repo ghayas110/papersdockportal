@@ -147,9 +147,9 @@ const Contact: React.FC = (): JSX.Element => {
               </a>
             </div>
           </div>
-          <input type="text" placeholder="Enter name"  onChange={(e) => setProduct({ ...product, name: e.target.value })} />
-          <input type="email" placeholder="Enter email"  onChange={(e) => setProduct({ ...product, email: e.target.value })} />
-          <input type="number" placeholder="Enter amount in usd"  onChange={(e) => setProduct({ ...product, price: e.target.value })} />
+          <input type="text" placeholder="Enter name"  onChange={(e) => setproduct({ ...product, name: e.target.value })} />
+          <input type="email" placeholder="Enter email"  onChange={(e) => setproduct({ ...product, email: e.target.value })} />
+          <input type="number" placeholder="Enter amount in usd"  onChange={(e) => setproduct({ ...product, price: e.target.value })} />
           <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg mt-10 text-white">
             <div className="flex-grow">
               <span className="text-lg text-white font-semibold">Intenational</span>
