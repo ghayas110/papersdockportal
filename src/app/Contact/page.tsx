@@ -10,18 +10,25 @@ const Contact: React.FC = (): JSX.Element => {
   const [invoiceData, setInvoiceData] = useState<any>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [product, setproduct] = useState({
-    "price": '',
-    "name": ``,
-    "email": ``
+    "price": 0,
+    "name": '',
+    "email": ''
   })
   const onToken = async (token: any) => {
+    if(product.name!=''&&product.email!=''&&product.price!=0){
     try {
-      const response = await axios.post('https://be.papersdock.com/checkout', { token });
+      const response = await axios.post('https://be.papersdock.com/checkout', { token, product });
       if (response.status === 200) {
         const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
         const date = new Date().toLocaleDateString(); // Current date
 
-       
+        setInvoiceData({
+          amount: product.price,
+          email: product.email,
+          name: product.name,
+          date,
+          invoiceNumber,
+        });
 
         message.success('Payment successful!');
         setPaymentSuccess(true);
@@ -32,6 +39,10 @@ const Contact: React.FC = (): JSX.Element => {
       console.error('Payment error:', error);
       message.error('Payment failed, please try again.');
     }
+  }
+  else{
+    alert("please fill all fields.")
+  }
   };
 
   const handlePrint = () => {
@@ -62,6 +73,7 @@ const Contact: React.FC = (): JSX.Element => {
       setInvoiceData(null)
     }
   };
+
   const accordionData: Array<{ title: string; content: React.ReactNode }> = [
     {
       title: "Refund Policy",
@@ -135,16 +147,22 @@ const Contact: React.FC = (): JSX.Element => {
               </a>
             </div>
           </div>
+          <input type="text" placeholder="Enter name"  onChange={(e) => setProduct({ ...product, name: e.target.value })} />
+          <input type="email" placeholder="Enter email"  onChange={(e) => setProduct({ ...product, email: e.target.value })} />
+          <input type="number" placeholder="Enter amount in usd"  onChange={(e) => setProduct({ ...product, price: e.target.value })} />
           <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg mt-10 text-white">
             <div className="flex-grow">
               <span className="text-lg text-white font-semibold">Intenational</span>
               <StripeCheckout
               key="stripe"
+              amount={product.price*100} // Assuming the amount is in cents
+              name={product.name}
+              email={product.email}
               stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
-            token={onToken}
+              token={onToken}
               locale="auto"
             />,
-            {paymentSuccess && (
+           paymentSuccess && (
               <Button
                 key="print"
                 type="primary"
@@ -153,7 +171,7 @@ const Contact: React.FC = (): JSX.Element => {
               >
                 Download Invoice
               </Button>
-            )}
+            )
             </div>
           </div>
         </div>
