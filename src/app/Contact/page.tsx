@@ -162,7 +162,7 @@ const Contact: React.FC = (): JSX.Element => {
               token={onToken}
               locale="auto"
             />,
-           paymentSuccess && (
+          { paymentSuccess && (
               <Button
                 key="print"
                 type="primary"
@@ -171,7 +171,7 @@ const Contact: React.FC = (): JSX.Element => {
               >
                 Download Invoice
               </Button>
-            )
+            )}
             </div>
           </div>
         </div>
