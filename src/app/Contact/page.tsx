@@ -140,7 +140,7 @@ const Contact: React.FC = (): JSX.Element => {
               <span className="text-lg text-white font-semibold">Intenational</span>
               <StripeCheckout
               key="stripe"
-              stripeKey="pk_live_51MFHJKIWbzOPJLuU3S9gFAxEocJH5X0ynjFszA0LAvvHaUccB9lL5SZ8e2dKd7ZhPGYWuH98xUJcLkp3btITy9U700e0S20Hco"
+              stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
             token={onToken}
               locale="auto"
             />,
