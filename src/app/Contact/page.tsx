@@ -54,7 +54,6 @@ const Contact: React.FC = (): JSX.Element => {
 
   const handlePrint = () => {
     setpaybool(true)
-    if(paybool){
     const printContents = invoiceRef.current?.innerHTML;
     const isMobileOrIpad = /Mobi|iPad/i.test(navigator.userAgent);
     const target = isMobileOrIpad ? '_self' : '_blank';
@@ -82,7 +81,6 @@ const Contact: React.FC = (): JSX.Element => {
       setInvoiceData(null)
       setpaybool(false)
     }
-  }
   };
 
   const accordionData: Array<{ title: string; content: React.ReactNode }> = [
