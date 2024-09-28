@@ -4,6 +4,7 @@ import Image from "next/image";
 import axios from "axios";
 import { Button, message } from "antd";
 import StripeCheckout from "react-stripe-checkout";
+import Invoice from "../fees/Invoice";
 const Contact: React.FC = (): JSX.Element => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null)
@@ -16,6 +17,10 @@ const Contact: React.FC = (): JSX.Element => {
   })
   const onToken = async (token: any) => {
     if(product.name!=''&&product.email!=''&&product.price!=0){
+      if(product.price<5){
+        alert("please enter minimum $5.")
+      }
+      else{
     try {
       const response = await axios.post('https://be.papersdock.com/checkout', { token, product });
       if (response.status === 200) {
@@ -40,6 +45,7 @@ const Contact: React.FC = (): JSX.Element => {
       message.error('Payment failed, please try again.');
     }
   }
+}
   else{
     alert("please fill all fields.")
   }
@@ -175,6 +181,17 @@ const Contact: React.FC = (): JSX.Element => {
             </div>
           </div>
         </div>
+        {paymentSuccess && invoiceData && (
+          <div ref={invoiceRef}>
+            <Invoice
+              amount={invoiceData.amount}
+              email={invoiceData.email}
+              name={invoiceData.name}
+              date={invoiceData.date}
+              invoiceNumber={invoiceData.invoiceNumber}
+            />
+          </div>
+        )}
       </div>
 
       {/* <div className=" bg-zinc-800">
