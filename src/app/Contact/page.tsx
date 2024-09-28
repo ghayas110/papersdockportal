@@ -167,7 +167,7 @@ const Contact: React.FC = (): JSX.Element => {
               amount={product.price*100} // Assuming the amount is in cents
               name={product.name}
               email={product.email}
-              stripeKey="pk_test_51MFHJKIWbzOPJLuUmaW6piuJIOkyZaCP7YXBMEnntHjQzZqpPoxeKYSVm7KgK5bRdx36WwXqDaqbth5b9DN1MgT600WCyfteSZ"
+              stripeKey="pk_live_51MFHJKIWbzOPJLuU3S9gFAxEocJH5X0ynjFszA0LAvvHaUccB9lL5SZ8e2dKd7ZhPGYWuH98xUJcLkp3btITy9U700e0S20Hco"
               token={onToken}
               locale="auto"
             />,
@@ -184,7 +184,7 @@ const Contact: React.FC = (): JSX.Element => {
             </div>
           </div>
         </div>
-        {paybool&&paymentSuccess && invoiceData && (
+        {paymentSuccess && invoiceData && (
           <div ref={invoiceRef}>
             <Invoice
               amount={invoiceData.amount*100}
