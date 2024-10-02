@@ -118,6 +118,7 @@ const StudentFeePage: React.FC = () => {
   const onToken = async (token: any) => {
     try {
       const response = await axios.post('https://be.papersdock.com/checkout', { token, product });
+      console.log(response,"hello response")
       if (response.status === 200) {
         const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
         const date = new Date().toLocaleDateString(); // Current date
