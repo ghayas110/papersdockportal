@@ -29,7 +29,7 @@ const Contact: React.FC = (): JSX.Element => {
             const date = new Date().toLocaleDateString(); // Current date
 
             setInvoiceData({
-              amount: product.price,
+              amount: product.price*100,
               email: product.email,
               name: product.name,
               date,
