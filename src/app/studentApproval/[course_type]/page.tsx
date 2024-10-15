@@ -3,8 +3,10 @@
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, Button, Space, message } from 'antd';
+import { Table, Button, Space, message, Input, Row, Col } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+
+const { Search } = Input;
 
 interface StudentData {
   id: string;
@@ -12,7 +14,7 @@ interface StudentData {
   studentId: string;
   studentName: string;
   access: 'granted' | 'removed';
-  approved_by_admin_flag: string
+  approved_by_admin_flag: string;
 }
 
 interface StudentApprovalPageProps {
@@ -23,12 +25,14 @@ interface StudentApprovalPageProps {
 
 const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => {
   const [studentData, setStudentData] = useState<StudentData[]>([]);
+  const [filteredData, setFilteredData] = useState<StudentData[]>([]);
   const accessToken = localStorage.getItem('access_token');
   const router = useRouter();
-  const courseType = params.course_type
+  const courseType = params.course_type;
+
   useEffect(() => {
     fetchStudents();
-  }, [courseType,studentData]);
+  }, [courseType]);
 
   const fetchStudents = async () => {
     try {
@@ -39,7 +43,7 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
         },
       });
       const data = await response.json();
-    
+
       if (response.ok) {
         const filteredData = data.data
           .filter((user: any) => user.user_type === 'student' && user.selected_course === courseType)
@@ -48,10 +52,11 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
             sno: index + 1,
             studentId: user.id.toString(),
             studentName: user.name,
-            access: 'removed', // Default access status; adjust as necessary based on your data
-            approved_by_admin_flag: user.approved_by_admin_flag
+            access: 'removed',
+            approved_by_admin_flag: user.approved_by_admin_flag,
           }));
         setStudentData(filteredData);
+        setFilteredData(filteredData);
       } else {
         message.error(data.message);
       }
@@ -61,10 +66,21 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
     }
   };
 
+  const handleSearch = (value: string) => {
+    const searchTerm = value.toLowerCase();
+    const filtered = studentData.filter(
+      (student) =>
+        student.studentName.toLowerCase().includes(searchTerm) ||
+        student.studentId.toLowerCase().includes(searchTerm)
+    );
+    setFilteredData(filtered);
+  };
+
   const handleAccessChange = async (id: string, access: 'granted' | 'removed') => {
-    const apiUrl = access === 'granted' 
-      ? 'https://be.papersdock.com/users/approve-student-access' 
-      : 'https://be.papersdock.com/users/reject-student-access';
+    const apiUrl =
+      access === 'granted'
+        ? 'https://be.papersdock.com/users/approve-student-access'
+        : 'https://be.papersdock.com/users/reject-student-access';
 
     try {
       const response = await fetch(apiUrl, {
@@ -78,12 +94,16 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
       });
       const data = await response.json();
       if (response.ok) {
-        setStudentData(studentData.map(student => {
-          if (student.id === id) {
-            return { ...student, access };
-          }
-          return student;
-        }));
+        setStudentData((prevData) =>
+          prevData.map((student) =>
+            student.id === id ? { ...student, access } : student
+          )
+        );
+        setFilteredData((prevData) =>
+          prevData.map((student) =>
+            student.id === id ? { ...student, access } : student
+          )
+        );
         message.success(data.message);
       } else {
         message.error(data.message);
@@ -116,21 +136,14 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
       render: (text: string, record: StudentData) => (
         <Space size="middle">
           <Button
-          
-            disabled={record?.approved_by_admin_flag=="Y"?true:false}
+            disabled={record.approved_by_admin_flag === 'Y'}
             onClick={() => handleAccessChange(record.id, 'granted')}
-          
-          
           >
-            {/* {record?.approved_by_admin_flag} */}
             Give Access
           </Button>
           <Button
-          
-            disabled={record?.approved_by_admin_flag=="N"?true:false}
+            disabled={record.approved_by_admin_flag === 'N'}
             onClick={() => handleAccessChange(record.id, 'removed')}
-           
-         
           >
             Remove Access
           </Button>
@@ -142,12 +155,35 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <div className="flex justify-between">
-        <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer"/>
-        <h1 className="text-3xl font-bold mb-8">Student Approval</h1>
-        <p>.</p>
+        <div className="flex justify-between items-center mb-4">
+          <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
+          <h1 className="text-3xl font-bold">Student Approval</h1>
+          <div />
         </div>
-        <Table columns={columns} dataSource={studentData} rowKey="id" />
+        <Row gutter={[16, 16]} className="mb-4">
+          <Col span={12}>
+            <Search
+              placeholder="Search by Student Name or ID"
+              allowClear
+              enterButton={
+                <Button
+                  style={{
+                    backgroundColor: 'black',
+                    color: 'white',
+                    border: 'none',
+                    height: '40px',
+                    lineHeight: '40px',
+                  }}
+                >
+                  Search
+                </Button>
+              }
+              size="large"
+              onSearch={handleSearch}
+            />
+          </Col>
+        </Row>
+        <Table columns={columns} dataSource={filteredData} rowKey="id" />
       </div>
     </DefaultLayout>
   );
