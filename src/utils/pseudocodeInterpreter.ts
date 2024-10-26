@@ -105,18 +105,18 @@ export class PseudocodeInterpreter {
         return expression.slice(1, -1);
     }
 
-    // Check for equality comparison like 'operation = "add"'
-    const equalityPattern = /^(\w+)\s*=\s*"(.+)"$/;
+    // Check for equality comparison like 'num1 = 2'
+    const equalityPattern = /^(\w+)\s*=\s*(.+)$/;
     const match = expression.match(equalityPattern);
     if (match) {
         const [, varName, value] = match;
         if (this.variables[varName] !== undefined) {
-            return this.variables[varName] === value;
+            return this.variables[varName] === this.evaluateExpression(value);
         }
         return false; // Return false if the variable doesn't match the value
     }
 
-    // Evaluate simple arithmetic expressions
+    // Evaluate arithmetic expressions like 'num1 + num2'
     try {
         // Replace variable names in the expression with their values
         for (const [key, value] of Object.entries(this.variables)) {
@@ -133,6 +133,7 @@ export class PseudocodeInterpreter {
         return `Error evaluating expression: ${expression}`;
     }
 }
+
 
 
 
@@ -174,77 +175,79 @@ export class PseudocodeInterpreter {
 }
 
 
-  private inputStatement(line: string): string {
-    const pattern = /^INPUT\s+(\w+)/;
-    const match = line.match(pattern);
-    if (match) {
+private inputStatement(line: string): string {
+  const pattern = /^INPUT\s+(\w+)/;
+  const match = line.match(pattern);
+  if (match) {
       const varName = match[1];
       if (this.inputQueue.length > 0) {
-        const inputValue = this.inputQueue.shift();
-        this.variables[varName] = inputValue;
-        return `Assigned ${inputValue} to ${varName}`;
+          let inputValue = this.inputQueue.shift();
+
+          // Convert to a number if the variable is of type REAL or INTEGER
+          if (!isNaN(Number(inputValue))) {
+              inputValue = parseFloat(inputValue);
+          }
+
+          this.variables[varName] = inputValue;
+          return `Assigned ${inputValue} to ${varName}`;
       } else {
-        return `Error: No input available for ${varName}`;
+          return `Error: No input available for ${varName}`;
       }
-    }
-    return `Error: Invalid INPUT statement format`;
   }
+  return `Error: Invalid INPUT statement format`;
+}
+
 
  // Method to handle IF-ELSE IF-ELSE logic
  private handleIfStatement(lines: string[], index: number): number {
-    const ifPattern = /^IF\s+(.+)\s+THEN$/;
-    const elseIfPattern = /^ELSE\s+IF\s+(.+)\s+THEN$/;
-    const elsePattern = /^ELSE$/;
-    const endifPattern = /^ENDIF$/;
+  const ifPattern = /^IF\s+(.+)\s+THEN$/;
+  const elsePattern = /^ELSE$/;
+  const endifPattern = /^ENDIF$/;
 
-    let blockExecuted = false;
+  let blockExecuted = false;
 
-    for (let i = index; i < lines.length; i++) {
-        const line = lines[i].trim();
+  for (let i = index; i < lines.length; i++) {
+      const line = lines[i].trim();
 
-        if (line.match(ifPattern) && !blockExecuted) {
-            const [, condition] = line.match(ifPattern) || [];
-            if (this.evaluateExpression(condition)) {
-                blockExecuted = true;
-                i = this.executeBlock(lines, i + 1);
-            }
-        } else if (line.match(elseIfPattern) && !blockExecuted) {
-            const [, condition] = line.match(elseIfPattern) || [];
-            if (this.evaluateExpression(condition)) {
-                blockExecuted = true;
-                i = this.executeBlock(lines, i + 1);
-            }
-        } else if (line.match(elsePattern) && !blockExecuted) {
-            blockExecuted = true;
-            i = this.executeBlock(lines, i + 1);
-        } else if (line.match(endifPattern)) {
-            // End the IF block
-            return i;
-        }
+      if (line.match(ifPattern) && !blockExecuted) {
+          const [, condition] = line.match(ifPattern) || [];
+          if (this.evaluateExpression(condition)) {
+              blockExecuted = true;
+              i = this.executeBlock(lines, i + 1);
+          }
+      } else if (line.match(elsePattern) && !blockExecuted) {
+          blockExecuted = true;
+          i = this.executeBlock(lines, i + 1);
+      } else if (line.match(endifPattern)) {
+          // End the IF block
+          return i;
+      }
 
-        if (blockExecuted) {
-            // Skip lines until ENDIF
-            while (i < lines.length && !lines[i].trim().match(endifPattern)) {
-                i++;
-            }
-            return i; // Return the index where ENDIF was found
-        }
-    }
+      // If a block was executed, skip to ENDIF
+      if (blockExecuted) {
+          while (i < lines.length && !lines[i].trim().match(endifPattern)) {
+              i++;
+          }
+          return i; // Return the index where ENDIF was found
+      }
+  }
 
-    return index;
+  return index;
 }
 
-
+// Helper method to execute a block of lines
 private executeBlock(lines: string[], startIndex: number): number {
-    for (let i = startIndex; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (line.startsWith("ELSE") || line.startsWith("ENDIF")) {
-            return i - 1; // Return the previous line before ELSE or ENDIF
-        }
-        this.executeLine(line, lines, i);
-    }
-    return lines.length - 1; 
+  for (let i = startIndex; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith("ELSE") || line.startsWith("ENDIF")) {
+          return i - 1; // Return the previous line before ELSE or ENDIF
+      }
+      this.executeLine(line, lines, i);
+  }
+  return lines.length - 1; 
 }
+
+
 
 
 
