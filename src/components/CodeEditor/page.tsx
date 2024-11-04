@@ -1,7 +1,7 @@
 // components/CodeEditor.tsx
 "use client";
 import React, { useState } from 'react';
-import { PseudocodeInterpreter} from '../../utils/pseudocodeInterpreter';
+import { PseudocodeInterpreter } from '../../utils/pseudocodeInterpreter';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -12,11 +12,17 @@ const CodeEditor: React.FC = () => {
   const [output, setOutput] = useState<string>('');
 
   const handleRunCode = () => {
-    const inputs = inputQueue.split(',').map((input) => parseFloat(input.trim()));
+    const inputs = inputQueue.split(',').map((input) => {
+      const trimmedInput = input.trim();
+      // Check if the input is a number; if not, keep it as a string
+      return !isNaN(Number(trimmedInput)) ? parseFloat(trimmedInput) : trimmedInput;
+    });
+
     const interpreter = new PseudocodeInterpreter(inputs);
     const result = interpreter.execute(code);
     setOutput(result);
   };
+
 
   const handleExportCode = () => {
     const element = document.createElement('a');
