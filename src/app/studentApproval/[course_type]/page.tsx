@@ -131,13 +131,13 @@ console.log(data)
        setIsEditLoading(true);
        try {
         const apiUrl ='https://be.papersdock.com/users/update-user-profile'
-        console.log(record)
+       
         const values = await form.validateFields();
-        console.log(record,values)
+        console.log(values?.selectedcourse,"sss")
         const formData = new FormData();
         formData.append('id', (record.id).toString());
         formData.append('name', values.studentName);
-        formData.append('course_type', values.selectedcourse);
+        formData.append('selected_course', values.selectedcourse);
         formData.append('email', values.email);
         formData.append('contact', values.contact);
         formData.append('password', '');
