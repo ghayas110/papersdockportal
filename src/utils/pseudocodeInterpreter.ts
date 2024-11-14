@@ -1,7 +1,5 @@
-// utils/PseudocodeInterpreter.ts
-
 type Variables = { [key: string]: any };
-type FunctionDef = { params: string[]; body: string[] };
+type FunctionDef = { params: string[]; body: string[]; returns?: string };
 
 export class PseudocodeInterpreter {
   private variables: Variables = {};
@@ -48,6 +46,12 @@ export class PseudocodeInterpreter {
       return this.inputStatement(line);
     } else if (line.includes('←')) {
       return this.assignValue(line);
+    } else if (line.startsWith('PROCEDURE') || line.startsWith('FUNCTION')) {
+      return this.defineFunction(line, lines, index);
+    } else if (line.startsWith('CALL')) {
+      return this.callProcedure(line);
+    } else if (this.functions[line.split('(')[0].trim()]) {
+      return this.callFunction(line);
     }
     return `Error: Unknown statement "${line}"`;
   }
@@ -90,49 +94,61 @@ export class PseudocodeInterpreter {
   }
 
   private evaluateExpression(expression: string): any {
+    // Handle string concatenation with '&' operator
+    if (expression.includes('&')) {
+        const parts = expression.split('&').map(part => part.trim());
+        const evaluatedParts = parts.map(part => {
+            if (part.startsWith('"') && part.endsWith('"')) {
+                return part.slice(1, -1); // Keep string literals as is, removing quotes
+            } else {
+                return this.evaluateExpression(part); // Evaluate variables or other expressions
+            }
+        });
+        return evaluatedParts.join(''); // Join evaluated parts as a single concatenated string
+    }
+
+    // Handle single string literal (return without processing further)
+    if (expression.startsWith('"') && expression.endsWith('"')) {
+        return expression.slice(1, -1); // Strip quotes and return literal
+    }
+
     // Check if the expression is a variable
     if (this.variables.hasOwnProperty(expression)) {
-      return this.variables[expression];
+        return this.variables[expression];
     }
 
     // Check if the expression is a numeric value
     if (!isNaN(Number(expression))) {
-      return Number(expression);
+        return Number(expression);
     }
 
-    // Check if the expression is a string literal (e.g., "add")
-    if (expression.startsWith('"') && expression.endsWith('"')) {
-      return expression.slice(1, -1);
-    }
-
-    // Check for equality comparison like 'num1 = 2'
+    // Handle other expressions (e.g., equality check)
     const equalityPattern = /^(\w+)\s*=\s*(.+)$/;
     const match = expression.match(equalityPattern);
     if (match) {
-      const [, varName, value] = match;
-      if (this.variables[varName] !== undefined) {
-        return this.variables[varName] === this.evaluateExpression(value);
-      }
-      return false; // Return false if the variable doesn't match the value
+        const [, varName, value] = match;
+        if (this.variables[varName] !== undefined) {
+            return this.variables[varName] === this.evaluateExpression(value);
+        }
+        return false;
     }
 
-    // Evaluate arithmetic expressions like 'num1 + num2'
+    // Evaluate arithmetic expressions (e.g., "num1 + num2")
     try {
-      // Replace variable names in the expression with their values
-      for (const [key, value] of Object.entries(this.variables)) {
-        expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), value.toString());
-      }
+        for (const [key, value] of Object.entries(this.variables)) {
+            expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), value.toString());
+        }
 
-      // Only evaluate if the expression is purely arithmetic
-      if (/^[\d+\-*/().\s]+$/.test(expression)) {
-        return eval(expression);
-      }
-
-      return `Error evaluating expression: ${expression}`;
+        // If purely arithmetic, safely evaluate
+        if (/^[\d+\-*/().\s]+$/.test(expression)) {
+            return eval(expression);
+        }
+        return `Error evaluating expression: ${expression}`;
     } catch (e) {
-      return `Error evaluating expression: ${expression}`;
+        return `Error evaluating expression: ${expression}`;
     }
-  }
+}
+
 
 
 
@@ -142,38 +158,28 @@ export class PseudocodeInterpreter {
     const match = line.match(pattern);
     if (match) {
       const expression = match[1];
-      // Split the expression by commas and trim whitespace
       const parts = expression.split(',').map(part => part.trim());
-
-      // Evaluate each part separately
       const evaluatedParts = parts.map(part => {
         if (part.startsWith('"') && part.endsWith('"')) {
-          // It's a string literal, so remove the quotes and return it directly
           return part.slice(1, -1);
         } else {
-          // Otherwise, evaluate as an expression or variable
           const value = this.evaluateExpression(part);
           if (typeof value === 'string' && value.startsWith('Error')) {
-            return value; // Return the error if there's an issue with evaluation
+            return value;
           }
           return value !== undefined ? value.toString() : `Error: Undefined variable or expression (${part})`;
         }
       });
-
-      // If any part contains an error, return that error message
       const errorPart = evaluatedParts.find(part => part.startsWith('Error'));
       if (errorPart) {
         return errorPart;
       }
-
-      // Concatenate the evaluated parts into a single string
       const output = evaluatedParts.join(' ');
       this.outputLog.push(output);
       return '';
     }
     return `Error: Invalid OUTPUT statement format`;
   }
-
 
   private inputStatement(line: string): string {
     const pattern = /^INPUT\s+(\w+)/;
@@ -182,12 +188,9 @@ export class PseudocodeInterpreter {
       const varName = match[1];
       if (this.inputQueue.length > 0) {
         let inputValue = this.inputQueue.shift();
-
-        // Convert to a number if the variable is of type REAL or INTEGER
         if (!isNaN(Number(inputValue))) {
           inputValue = parseFloat(inputValue);
         }
-
         this.variables[varName] = inputValue;
         return `Assigned ${inputValue} to ${varName}`;
       } else {
@@ -197,8 +200,98 @@ export class PseudocodeInterpreter {
     return `Error: Invalid INPUT statement format`;
   }
 
+ // Method to define a procedure or function
+private defineFunction(line: string, lines: string[], index: number): number {
+  const funcPattern = /^PROCEDURE\s+(\w+)\(([^)]*)\)|FUNCTION\s+(\w+)\(([^)]*)\)\s+RETURNS\s+(\w+)/;
+  const match = line.match(funcPattern);
 
-  // Method to handle IF-ELSE IF-ELSE logic
+  if (match) {
+      const [_, procName, procParams, funcName, funcParams, returnType] = match;
+      const name = procName || funcName;
+      const params = (procParams || funcParams || "").split(',').map(p => p.trim());
+      const body: string[] = [];
+      let i = index + 1;
+
+      // Collect the body of the procedure/function until ENDPROCEDURE or ENDFUNCTION
+      while (i < lines.length && !lines[i].trim().startsWith(procName ? "ENDPROCEDURE" : "ENDFUNCTION")) {
+          body.push(lines[i].trim());
+          i++;
+      }
+
+      this.functions[name] = { params, body, returns: returnType };
+      console.log(`Defined ${procName ? 'procedure' : 'function'} "${name}" with params [${params.join(', ')}]`);  // Debug output
+      return i;
+  }
+
+  return index;
+}
+
+// Method to call a procedure
+private callProcedure(line: string): string {
+  const callPattern = /^CALL\s+(\w+)\(([^)]*)\)/;
+  const match = line.match(callPattern);
+
+  if (match) {
+      const [, name, argList] = match;
+      const args = argList.split(',').map(arg => this.evaluateExpression(arg.trim()));
+      const funcDef = this.functions[name];
+      if (funcDef) {
+          console.log(`Calling procedure "${name}" with arguments [${args.join(', ')}]`);  // Debug output
+
+          // Save existing variable state and set procedure parameters
+          const savedVariables = { ...this.variables };
+          funcDef.params.forEach((param, i) => this.variables[param] = args[i]);
+
+          // Execute each line in the procedure body
+          for (let i = 0; i < funcDef.body.length; i++) {
+              const bodyLine = funcDef.body[i];
+              console.log(`Executing line in procedure "${name}": ${bodyLine}`);  // Debug output
+              const result = this.executeLine(bodyLine, funcDef.body, i);
+              if (typeof result === 'string' && result.startsWith('Error')) {
+                  console.error(result);
+              }
+          }
+
+          // Restore variable state
+          this.variables = savedVariables;
+          return `Procedure ${name} executed`;
+      }
+      return `Error: Procedure ${name} not found`;
+  }
+
+  return `Error: Invalid procedure call format`;
+}
+
+
+
+  private callFunction(line: string): any {
+    const funcPattern = /^(\w+)\(([^)]*)\)/;
+    const match = line.match(funcPattern);
+
+    if (match) {
+      const [name, argList] = match;
+      const args = argList.split(',').map(arg => this.evaluateExpression(arg.trim()));
+      const funcDef = this.functions[name];
+      if (funcDef) {
+        const savedVariables = { ...this.variables };
+        funcDef.params.forEach((param, i) => this.variables[param] = args[i]);
+        let result;
+        for (const funcLine of funcDef.body) {
+          if (funcLine.startsWith("RETURN")) {
+            result = this.evaluateExpression(funcLine.replace("RETURN", "").trim());
+            break;
+          }
+          this.executeLine(funcLine, funcDef.body, 0);
+        }
+        this.variables = savedVariables;
+        return result;
+      }
+      return `Error: Function ${name} not found`;
+    }
+
+    return `Error: Invalid function call format`;
+  }
+
   private handleIfStatement(lines: string[], index: number): number {
     const ifPattern = /^IF\s+(.+)\s+THEN$/;
     const elsePattern = /^ELSE$/;
@@ -219,39 +312,30 @@ export class PseudocodeInterpreter {
         blockExecuted = true;
         i = this.executeBlock(lines, i + 1);
       } else if (line.match(endifPattern)) {
-        // End the IF block
         return i;
       }
 
-      // If a block was executed, skip to ENDIF
       if (blockExecuted) {
         while (i < lines.length && !lines[i].trim().match(endifPattern)) {
           i++;
         }
-        return i; // Return the index where ENDIF was found
+        return i;
       }
     }
 
     return index;
   }
 
-  // Helper method to execute a block of lines
   private executeBlock(lines: string[], startIndex: number): number {
     for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith("ELSE") || line.startsWith("ENDIF")) {
-        return i - 1; // Return the previous line before ELSE or ENDIF
+        return i - 1;
       }
       this.executeLine(line, lines, i);
     }
     return lines.length - 1;
   }
-
-
-
-
-
-
 
   private handleForLoop(line: string, lines: string[], index: number): number {
     const forPattern = /^FOR\s+(\w+)\s+←\s+(\d+)\s+TO\s+(\d+)$/;
