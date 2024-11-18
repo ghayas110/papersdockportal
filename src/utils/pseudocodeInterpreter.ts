@@ -1,8 +1,11 @@
 type Variables = { [key: string]: any };
-type FunctionDef = { params: string[]; body: string[]; returns?: string };
+type FunctionDef = {
+  params: string[];
+  body: string[];
+};
 
 export class PseudocodeInterpreter {
-  private variables: Variables = {};
+  private variables: { [key: string]: any } = {};
   private constants: Variables = {};
   private functions: { [key: string]: FunctionDef } = {};
   private outputLog: string[] = [];
@@ -96,58 +99,94 @@ export class PseudocodeInterpreter {
   private evaluateExpression(expression: string): any {
     // Handle string concatenation with '&' operator
     if (expression.includes('&')) {
-        const parts = expression.split('&').map(part => part.trim());
-        const evaluatedParts = parts.map(part => {
-            if (part.startsWith('"') && part.endsWith('"')) {
-                return part.slice(1, -1); // Keep string literals as is, removing quotes
-            } else {
-                return this.evaluateExpression(part); // Evaluate variables or other expressions
-            }
-        });
-        return evaluatedParts.join(''); // Join evaluated parts as a single concatenated string
+      const parts = expression.split('&').map(part => part.trim());
+      const evaluatedParts = parts.map(part => {
+        if (part.startsWith('"') && part.endsWith('"')) {
+          return part.slice(1, -1); // Keep string literals as is, removing quotes
+        } else {
+          return this.evaluateExpression(part); // Evaluate variables or other expressions
+        }
+      });
+      return evaluatedParts.join(''); // Join evaluated parts as a single concatenated string
     }
 
     // Handle single string literal (return without processing further)
     if (expression.startsWith('"') && expression.endsWith('"')) {
-        return expression.slice(1, -1); // Strip quotes and return literal
+      return expression.slice(1, -1); // Strip quotes and return literal
     }
 
     // Check if the expression is a variable
     if (this.variables.hasOwnProperty(expression)) {
-        return this.variables[expression];
+      return this.variables[expression];
     }
 
     // Check if the expression is a numeric value
     if (!isNaN(Number(expression))) {
-        return Number(expression);
+      return Number(expression);
     }
 
-    // Handle other expressions (e.g., equality check)
-    const equalityPattern = /^(\w+)\s*=\s*(.+)$/;
-    const match = expression.match(equalityPattern);
-    if (match) {
-        const [, varName, value] = match;
-        if (this.variables[varName] !== undefined) {
-            return this.variables[varName] === this.evaluateExpression(value);
-        }
-        return false;
+    // Handle comparison expressions (e.g., "<", ">", "<=", ">=", "!=")
+    const comparisonPattern = /^(.+?)\s*(<=|>=|<|>|!=|==|=)\s*(.+)$/; // Ensure multi-character operators like ">=" are matched first
+    const comparisonMatch = expression.match(comparisonPattern);
+    if (comparisonMatch) {
+      const [, left, operator, right] = comparisonMatch;
+      const leftValue = this.evaluateExpression(left.trim());
+      const rightValue = this.evaluateExpression(right.trim());
+      console.log("hello yahan aya")
+      switch (operator) {
+        case '<':
+          return leftValue < rightValue;
+        case '>':
+          return leftValue > rightValue;
+        case '<=':
+          return leftValue <= rightValue;
+        case '>=':
+          return leftValue >= rightValue;
+        case '!=':
+          return leftValue != rightValue;
+        case '=':
+          return leftValue == rightValue;
+        case '==': // Support both single and double equals
+          return leftValue == rightValue;
+        case '+': return leftValue + rightValue;
+        case '-': return leftValue - rightValue;
+        case '*': return leftValue * rightValue;
+        case '/': return leftValue / rightValue;
+        default:
+          return `Unsupported operator: ${operator}`;
+      }
+    }
+
+    // Handle MOD keyword for modulus
+    const modPattern = /^(.+?)\s+MOD\s+(.+)$/i;
+    const modMatch = expression.match(modPattern);
+    if (modMatch) {
+      const [, left, right] = modMatch;
+      const leftValue = this.evaluateExpression(left.trim());
+      const rightValue = this.evaluateExpression(right.trim());
+      return leftValue % rightValue; // Return the modulus value
     }
 
     // Evaluate arithmetic expressions (e.g., "num1 + num2")
     try {
-        for (const [key, value] of Object.entries(this.variables)) {
-            expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), value.toString());
-        }
+      for (const [key, value] of Object.entries(this.variables)) {
+        expression = expression.replace(new RegExp(`\\b${key}\\b`, 'g'), value.toString());
+      }
 
-        // If purely arithmetic, safely evaluate
-        if (/^[\d+\-*/().\s]+$/.test(expression)) {
-            return eval(expression);
-        }
-        return `Error evaluating expression: ${expression}`;
+      // If purely arithmetic, safely evaluate
+      if (/^[\d+\-*/().\s]+$/.test(expression)) {
+        return eval(expression);
+      }
+      return `Error evaluating expression: ${expression}`;
     } catch (e) {
-        return `Error evaluating expression: ${expression}`;
+      return `Error evaluating expression: ${expression}`;
     }
-}
+  }
+
+
+
+
+
 
 
 
@@ -200,97 +239,104 @@ export class PseudocodeInterpreter {
     return `Error: Invalid INPUT statement format`;
   }
 
- // Method to define a procedure or function
-private defineFunction(line: string, lines: string[], index: number): number {
-  const funcPattern = /^PROCEDURE\s+(\w+)\(([^)]*)\)|FUNCTION\s+(\w+)\(([^)]*)\)\s+RETURNS\s+(\w+)/;
-  const match = line.match(funcPattern);
+  // Method to define a procedure or function
+  defineFunction(line: string, lines: string[], index: number): number {
+    const funcPattern = /^FUNCTION\s+(\w+)\(([^)]*)\)/;
+    const match = line.match(funcPattern);
 
-  if (match) {
-      const [_, procName, procParams, funcName, funcParams, returnType] = match;
-      const name = procName || funcName;
-      const params = (procParams || funcParams || "").split(',').map(p => p.trim());
+    if (match) {
+      const [, funcName, paramList] = match;
+      const params = paramList.split(',').map(param => param.trim());
       const body: string[] = [];
-      let i = index + 1;
 
-      // Collect the body of the procedure/function until ENDPROCEDURE or ENDFUNCTION
-      while (i < lines.length && !lines[i].trim().startsWith(procName ? "ENDPROCEDURE" : "ENDFUNCTION")) {
-          body.push(lines[i].trim());
-          i++;
+      // Collect the body of the function
+      let i = index + 1;
+      while (i < lines.length && !lines[i].startsWith('END FUNCTION')) {
+        body.push(lines[i].trim());
+        i++;
       }
 
-      this.functions[name] = { params, body, returns: returnType };
-      console.log(`Defined ${procName ? 'procedure' : 'function'} "${name}" with params [${params.join(', ')}]`);  // Debug output
-      return i;
+      // Store the function in the interpreter
+      this.functions[funcName] = { params, body };
+      return i;  // Return the index where "END FUNCTION" is found
+    }
+
+    return index;
   }
 
-  return index;
-}
 
-// Method to call a procedure
-private callProcedure(line: string): string {
-  const callPattern = /^CALL\s+(\w+)\(([^)]*)\)/;
-  const match = line.match(callPattern);
 
-  if (match) {
+  // Method to call a procedure
+  private callProcedure(line: string): string {
+    const callPattern = /^CALL\s+(\w+)\(([^)]*)\)/;
+    const match = line.match(callPattern);
+
+    if (match) {
       const [, name, argList] = match;
       const args = argList.split(',').map(arg => this.evaluateExpression(arg.trim()));
       const funcDef = this.functions[name];
       if (funcDef) {
-          console.log(`Calling procedure "${name}" with arguments [${args.join(', ')}]`);  // Debug output
+        console.log(`Calling procedure "${name}" with arguments [${args.join(', ')}]`);  // Debug output
 
-          // Save existing variable state and set procedure parameters
-          const savedVariables = { ...this.variables };
-          funcDef.params.forEach((param, i) => this.variables[param] = args[i]);
+        // Save existing variable state and set procedure parameters
+        const savedVariables = { ...this.variables };
+        funcDef.params.forEach((param, i) => this.variables[param] = args[i]);
 
-          // Execute each line in the procedure body
-          for (let i = 0; i < funcDef.body.length; i++) {
-              const bodyLine = funcDef.body[i];
-              console.log(`Executing line in procedure "${name}": ${bodyLine}`);  // Debug output
-              const result = this.executeLine(bodyLine, funcDef.body, i);
-              if (typeof result === 'string' && result.startsWith('Error')) {
-                  console.error(result);
-              }
+        // Execute each line in the procedure body
+        for (let i = 0; i < funcDef.body.length; i++) {
+          const bodyLine = funcDef.body[i];
+          console.log(`Executing line in procedure "${name}": ${bodyLine}`);  // Debug output
+          const result = this.executeLine(bodyLine, funcDef.body, i);
+          if (typeof result === 'string' && result.startsWith('Error')) {
+            console.error(result);
           }
+        }
 
-          // Restore variable state
-          this.variables = savedVariables;
-          return `Procedure ${name} executed`;
+        // Restore variable state
+        this.variables = savedVariables;
+        return `Procedure ${name} executed`;
       }
       return `Error: Procedure ${name} not found`;
+    }
+
+    return `Error: Invalid procedure call format`;
   }
 
-  return `Error: Invalid procedure call format`;
-}
 
 
-
-  private callFunction(line: string): any {
+  callFunction(line: string): any {
     const funcPattern = /^(\w+)\(([^)]*)\)/;
     const match = line.match(funcPattern);
 
     if (match) {
-      const [name, argList] = match;
+      const [, name, argList] = match;
       const args = argList.split(',').map(arg => this.evaluateExpression(arg.trim()));
       const funcDef = this.functions[name];
+
       if (funcDef) {
         const savedVariables = { ...this.variables };
+
+        // Assign the function arguments to the variables
         funcDef.params.forEach((param, i) => this.variables[param] = args[i]);
+
         let result;
-        for (const funcLine of funcDef.body) {
-          if (funcLine.startsWith("RETURN")) {
-            result = this.evaluateExpression(funcLine.replace("RETURN", "").trim());
+        for (const bodyLine of funcDef.body) {
+          if (bodyLine.startsWith("RETURN")) {
+            result = this.evaluateExpression(bodyLine.replace("RETURN", "").trim());
             break;
           }
-          this.executeLine(funcLine, funcDef.body, 0);
         }
-        this.variables = savedVariables;
+
+        this.variables = savedVariables;  // Restore the previous state
         return result;
       }
+
       return `Error: Function ${name} not found`;
     }
 
     return `Error: Invalid function call format`;
   }
+
 
   private handleIfStatement(lines: string[], index: number): number {
     const ifPattern = /^IF\s+(.+)\s+THEN$/;
