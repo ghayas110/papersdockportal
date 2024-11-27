@@ -15,7 +15,9 @@ const CodeEditor: React.FC = () => {
       return !isNaN(Number(trimmedInput)) ? parseFloat(trimmedInput) : trimmedInput;
     });
   
-      
+    const interpreter = new PseudocodeInterpreter(inputs);
+    const result = interpreter.execute(code);
+    setOutput(result);
    
   };
   const handleClearCode = () => {
