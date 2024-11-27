@@ -26,20 +26,15 @@ const ResizableLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex" style={{ height: '50vh' }}>
+    <div className="flex" >
       <div
         className="flex-shrink-0"
-        style={{ width: `${editorWidth}%` }}
+        style={{ width: '100%' }}
       >
         <CodeEditor />
       </div>
-      <div
-        className="w-1 cursor-col-resize bg-gray-700"
-        onMouseDown={startDragging}
-      />
-      <div className="flex-1 h-full">
-        <Sidebar />
-      </div>
+      
+    
     </div>
   );
 };
