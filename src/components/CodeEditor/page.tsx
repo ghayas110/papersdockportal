@@ -54,20 +54,20 @@ const CodeEditor: React.FC = () => {
         <div style={editorContainerStyle}>
         <div style={buttonGroupStyle}>
             <button onClick={handleRunCode} style={runButtonStyle}>
-              Run Code
+              Run
               <span style={{ marginLeft: '5px'}}>
 
               <PlayCircleOutlined />
               </span>
             </button>
             <button onClick={handleClearCode} style={runButtonStyle2}>
-              Clear Code
+              Clear 
               <span style={{ marginLeft: '5px'}}>
               <DeleteOutlined />
               </span>
             </button>
             <button onClick={handleExportCode} style={exportButtonStyle}>
-              Export Code
+              Export
             </button>
             <input
               type="file"
@@ -147,7 +147,7 @@ const editorContainerStyle = {
 
 const inputAreaStyle = {
   width: '100%',
-  height: 'calc(100vh - 880px)',
+  height: 'calc(100vh - 880)',
   padding: '10px',
   borderRadius: '8px',
   fontFamily: 'monospace',
