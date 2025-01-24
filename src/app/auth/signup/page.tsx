@@ -27,7 +27,7 @@ const SignUp: React.FC = () => {
       message.error("Passwords do not match!");
       return;
     }
-
+console.log(values.selectedCourse)
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("email", values.email);
@@ -48,7 +48,9 @@ const SignUp: React.FC = () => {
       });
 
       const data = await response.json();
+      console.log(data)
       if (data.message === "User added successfully") {
+
         message.success("User added successfully!");
       } else {
         message.error("Error: " + data.message);
@@ -140,6 +142,9 @@ const SignUp: React.FC = () => {
                     <Option value="AS">AS</Option>
                     <Option value="OS">A2</Option>
                     <Option value="Both">Composite</Option>
+                    <Option value="P2 Crash Course">P2 Crash Course</Option>
+                    <Option value="P4 Crash Course">P4 Crash Course</Option>
+                    <Option value="Crash Composite">Crash Composite</Option>
                   </Select>
                 </Form.Item>
 
