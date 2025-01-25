@@ -38,8 +38,14 @@ const StudentApprovalPage: React.FC<StudentApprovalPageProps> = ({ params }) => 
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const accessToken = localStorage.getItem('access_token');
   const router = useRouter();
-  const courseType = params.course_type;
 
+  if(params.course_type == 'P2_Crash_Course' || params.course_type == 'P4_Crash_Course' || params.course_type == 'Crash_Composite'){
+    var courseType = (params.course_type).replace(/_/g, ' ');
+  }else{
+    var courseType = params.course_type
+  }
+  console.log(courseType,"courseType")
+// console.log(courseType,"courseType")
   useEffect(() => {
     fetchStudents();
   }, [courseType]);
@@ -373,6 +379,9 @@ console.log(data)
                 <Select.Option value="AS">AS</Select.Option>
                 <Select.Option value="OS">A2</Select.Option>
                 <Select.Option value="Both">Composite</Select.Option>
+                <Select.Option value="P2 Crash Course">P2 Crash Course</Select.Option>
+                    <Select.Option value="P4 Crash Course">P4 Crash Course</Select.Option>
+                    <Select.Option value="Crash Composite">Crash Composite</Select.Option>
               </Select>
             </Form.Item>
             {/* <Form.Item
