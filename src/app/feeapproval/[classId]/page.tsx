@@ -126,6 +126,35 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
       message.error('No invoice available to view.');
     }
   };
+  const handleStatusChange = async (id: string, value: string) => {
+
+    try {
+      console.log(id, value)
+      const response = await fetch('https://be.papersdock.com/fees/approve-fee-invoice', {
+        method: 'POST',
+        headers: {
+          'accesstoken': `Bearer ${accessToken}`,
+          'x-api-key': 'lms_API',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fee_id: id, fee_status: value }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setFeeData(
+          feeData.map((fee) =>
+            fee.id === id ? { ...fee, status: value as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected' } : fee
+          )
+        );
+        message.success(data.message);
+      } else {
+        message.error(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to update fee status', error);
+      message.error('Failed to update fee status');
+    }
+  };
 
   const columns = [
     { title: 'S.No', dataIndex: 'sno', key: 'sno' },
@@ -134,7 +163,17 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
     { title: 'Year', dataIndex: 'year', key: 'year' },
     { title: 'Student Name', dataIndex: 'studentName', key: 'studentName' },
     { title: 'Contact', dataIndex: 'contact', key: 'contact' },
-    { title: 'Fee Status', dataIndex: 'status', key: 'status' },
+    {
+      title: 'Fee Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (text: string, record: FeeData) => (
+        <Select defaultValue={record.status} style={{ width: 150 }} onChange={(value) => handleStatusChange(record.id, value)}>
+          <Select.Option value="approved">Approved</Select.Option>
+          {/* <Select.Option value="rejected">Rejected</Select.Option> */}
+        </Select>
+      ),
+    },
     {
       title: 'Action',
       key: 'action',

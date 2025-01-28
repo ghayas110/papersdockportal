@@ -67,7 +67,16 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       const data = await response.json();
       if (response.ok) {
         console.log(data.data)
-        setNotes(data.data.filter((chapter: any) => chapter.course_type === courseType) );
+        if(courseType == "P2 Crash Course") {
+
+          setNotes(data.data.filter((chapter: any) => chapter.course_type === "AS") );
+        }else if(courseType == "P4 Crash Course") {
+          setNotes(data.data.filter((chapter: any) => chapter.course_type === "OS") );
+        }else if(courseType == "Crash Composite") {
+          setNotes(data.data.filter((chapter: any) => chapter.course_type === "AS" || chapter.course_type === "OS"));
+        }else{
+          setNotes(data.data.filter((chapter: any) => chapter.course_type === courseType) );
+        }
       } else {
         message.error(data.message);
       }
