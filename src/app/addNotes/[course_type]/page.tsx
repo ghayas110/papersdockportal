@@ -43,7 +43,12 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const courseType = params.course_type;
+  if(params.course_type == 'P2_Crash_Course' || params.course_type == 'P4_Crash_Course' || params.course_type == 'Crash_Composite'){
+    var courseType = (params.course_type).replace(/_/g, ' ');
+  }else{
+    var courseType = params.course_type
+  }
+
 
   useEffect(() => {
     if (courseType) {
@@ -61,7 +66,8 @@ const AddNotes: React.FC<AddNotesProps> = ({ params }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(data.data);
+        console.log(data.data)
+        setNotes(data.data.filter((chapter: any) => chapter.course_type === courseType) );
       } else {
         message.error(data.message);
       }

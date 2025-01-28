@@ -35,7 +35,11 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
   const [form] = Form.useForm();
 
   const accessToken = localStorage.getItem('access_token');
-  const courseType = params.course_type;
+  if(params.course_type == 'P2_Crash_Course' || params.course_type == 'P4_Crash_Course' || params.course_type == 'Crash_Composite'){
+    var courseType = (params.course_type).replace(/_/g, ' ');
+  }else{
+    var courseType = params.course_type
+  }
 
   useEffect(() => {
     if (courseType) {
@@ -52,8 +56,9 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
         },
       });
       const data = await response.json();
-      console.log(data)
+    
       if (response.ok) {
+        console.log(data)
         setChapters(courseType !== "Both" ? data.data.filter((chapter: any) => chapter.course_type === courseType) : data.data);
       } else {
         message.error(data.message);
@@ -127,6 +132,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     try {
       const values = await form.validateFields();
       setAddLoading(true);
+    console.log(courseType,"courseType")
       const formData = new FormData();
       formData.append('course_type', courseType);
       formData.append('chapter_name', values.chapter_name);
@@ -261,7 +267,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
         <div className="flex justify-between">
           <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
           <h1 className="text-3xl font-bold mb-8">Add Course</h1>
-          <p>.</p>
+          <p>{courseType}</p>
         </div>
         <Button
           type="primary"

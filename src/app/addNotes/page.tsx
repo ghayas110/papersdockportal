@@ -14,7 +14,19 @@ const AddNotes: React.FC = () => {
       router.push(`/addNotes/OS`);
     }else if(course_type === 'composite'){
       router.push(`/addNotes/Both`);
-    }
+    }else if(course_type === 'p2 crash course'){
+
+      router.push(`/addNotes/P2_Crash_Course`);
+    
+    }else if(course_type === 'p4 crash course'){
+
+      router.push(`/addNotes/P4_Crash_Course`);
+  
+  }else if(course_type === 'crash composite'){
+
+    router.push(`/addNotes/Crash_Composite`);
+  
+  }
   
   };
 
@@ -23,7 +35,12 @@ const AddNotes: React.FC = () => {
       <div className="container mx-auto p-8">
         <h1 className="text-3xl font-bold mb-8">Notes</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" >
-          {['AS', 'A2', 'Composite'].map((course_type, index) => (
+          {[
+            'AS', 'A2', 'Composite', "P2 Crash Course",
+            "P4 Crash Course",
+            "Crash Composite",
+
+          ].map((course_type, index) => (
                  <div key={index} className="rounded-sm border cursor-pointer border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark"  onClick={() => handleNavigation(course_type.toLowerCase())}>
     
 
