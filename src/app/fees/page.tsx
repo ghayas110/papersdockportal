@@ -47,7 +47,7 @@ const StudentFeePage: React.FC = () => {
     fetchFeeData();
   }, [selectedFee]);
   const [product, setproduct] = useState({
-    "price": user.selected_course === "Both" ? 32 : 16,
+    "price": user.selected_course === "Both" ? 32 :user.selected_course === "AS"|| user.selected_course === "0S" ? 16: user.selected_course === "P2 Crash Course"|| user.selected_course === "P4 Crash Course" ? 25: user.selected_course === "Crash Composite" ? 50: 0,
     "name": `${user?.name}`,
     "email": `${user?.email}`
   })

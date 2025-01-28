@@ -13,6 +13,7 @@ interface FeeData {
   month: string;
   year: string;
   studentName: string;
+  contact: string;
   status: 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected';
   invoiceFile?: string;
 }
@@ -29,17 +30,36 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
   const [isViewInvoiceVisible, setIsViewInvoiceVisible] = useState(false);
   const [selectedInvoiceUrl, setSelectedInvoiceUrl] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>('8'); // Default to August
-  const [selectedYear, setSelectedYear] = useState<string>('2024'); // Default to 2024
-  const [selectedStatus, setSelectedStatus] = useState<string>(''); // For status filter
+  const [selectedMonth, setSelectedMonth] = useState<string>('8'); // Default August
+  const [selectedYear, setSelectedYear] = useState<string>('2024'); // Default 2024
+  const [selectedStatus, setSelectedStatus] = useState<string>(''); // Status filter
   const router = useRouter();
 
-  const classId = params.classId;
   const accessToken = localStorage.getItem('access_token');
+  const classId = ['P2_Crash_Course', 'P4_Crash_Course', 'Crash_Composite'].includes(params.classId)
+    ? params.classId.replace(/_/g, ' ')
+    : params.classId;
+
+  const months = [
+    { label: 'January', value: '1' },
+    { label: 'February', value: '2' },
+    { label: 'March', value: '3' },
+    { label: 'April', value: '4' },
+    { label: 'May', value: '5' },
+    { label: 'June', value: '6' },
+    { label: 'July', value: '7' },
+    { label: 'August', value: '8' },
+    { label: 'September', value: '9' },
+    { label: 'October', value: '10' },
+    { label: 'November', value: '11' },
+    { label: 'December', value: '12' },
+  ];
+
+  const years = ['2022', '2023', '2024', '2025'];
 
   useEffect(() => {
     fetchFeeData();
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, selectedStatus]);
 
   const fetchFeeData = async () => {
     try {
@@ -67,8 +87,9 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
             status: fee.fee_status.toLowerCase() as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected',
             invoiceFile: fee.invoice_file ? `https://be.papersdock.com${fee.invoice_file}` : undefined,
           }));
+
         setFeeData(formattedData);
-        setFilteredData(formattedData);
+        applyFilters(formattedData, searchTerm, selectedStatus);
       } else {
         message.error(data.message);
       }
@@ -78,50 +99,23 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
     }
   };
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    const filtered = feeData.filter((fee) =>
-      (fee.studentName.toLowerCase().includes(value.toLowerCase()) || fee.studentId.includes(value)) &&
-      (selectedStatus ? fee.status === selectedStatus : true)
+  const applyFilters = (data: FeeData[], search: string, status: string) => {
+    const filtered = data.filter(
+      (fee) =>
+        (search ? fee.studentName.toLowerCase().includes(search.toLowerCase()) || fee.studentId.includes(search) : true) &&
+        (status ? fee.status === status : true)
     );
     setFilteredData(filtered);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    applyFilters(feeData, value, selectedStatus);
   };
 
   const handleStatusFilter = (value: string) => {
     setSelectedStatus(value);
-    const filtered = feeData.filter((fee) =>
-      (searchTerm ? (fee.studentName.toLowerCase().includes(searchTerm.toLowerCase()) || fee.studentId.includes(searchTerm)) : true) &&
-      (value ? fee.status === value : true)
-    );
-    setFilteredData(filtered);
-  };
-
-  const handleStatusChange = async (id: string, value: string) => {
-    try {
-      const response = await fetch('https://be.papersdock.com/fees/approve-fee-invoice', {
-        method: 'POST',
-        headers: {
-          'accesstoken': `Bearer ${accessToken}`,
-          'x-api-key': 'lms_API',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fee_id: id, fee_status: value }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setFeeData(
-          feeData.map((fee) =>
-            fee.id === id ? { ...fee, status: value as 'unpaid' | 'paid' | 'waiting approval' | 'approved' | 'rejected' } : fee
-          )
-        );
-        message.success(data.message);
-      } else {
-        message.error(data.message);
-      }
-    } catch (error) {
-      console.error('Failed to update fee status', error);
-      message.error('Failed to update fee status');
-    }
+    applyFilters(feeData, searchTerm, value);
   };
 
   const handleViewInvoice = (fileUrl?: string) => {
@@ -134,52 +128,13 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
   };
 
   const columns = [
-    {
-      title: 'S.No',
-      dataIndex: 'sno',
-      key: 'sno',
-    },
-    {
-      title: 'Student ID',
-      dataIndex: 'studentId',
-      key: 'studentId',
-    },
-    {
-      title: 'Month',
-      dataIndex: 'month',
-      key: 'month',
-    },
-    
-    {
-      title: 'Year',
-      dataIndex: 'year',
-      key: 'year',
-    },
-    {
-      title: 'Student Name',
-      dataIndex: 'studentName',
-      key: 'studentName',
-    },
-    {
-      title: 'Contact',
-      dataIndex: 'contact',
-      key: 'contact',
-    },
-    {
-      title: 'Fee Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (text: string, record: FeeData) => (
-        <Select
-          defaultValue={record.status}
-          style={{ width: 150 }}
-          onChange={(value) => handleStatusChange(record.id, value)}
-        >
-          <Select.Option value="approved">Approved</Select.Option>
-          <Select.Option value="rejected">Rejected</Select.Option>
-        </Select>
-      ),
-    },
+    { title: 'S.No', dataIndex: 'sno', key: 'sno' },
+    { title: 'Student ID', dataIndex: 'studentId', key: 'studentId' },
+    { title: 'Month', dataIndex: 'month', key: 'month' },
+    { title: 'Year', dataIndex: 'year', key: 'year' },
+    { title: 'Student Name', dataIndex: 'studentName', key: 'studentName' },
+    { title: 'Contact', dataIndex: 'contact', key: 'contact' },
+    { title: 'Fee Status', dataIndex: 'status', key: 'status' },
     {
       title: 'Action',
       key: 'action',
@@ -197,7 +152,6 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
         <div className="flex justify-between">
           <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
           <h1 className="text-3xl font-bold mb-8">Fee Approval</h1>
-          <p>.</p>
         </div>
 
         {/* Filters */}
@@ -208,53 +162,28 @@ const FeeApprovalPage: React.FC<StudentFeesProps> = ({ params }) => {
             value={searchTerm}
             style={{ width: 300 }}
           />
-          <Select
-            defaultValue={selectedMonth}
-            style={{ width: 120 }}
-            onChange={(value) => setSelectedMonth(value)}
-          >
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map((month) => (
-              <Select.Option key={month} value={month}>
-                {month}
-              </Select.Option>
-            ))}
-          </Select>
-          <Select
-            defaultValue={selectedYear}
-            style={{ width: 120 }}
-            onChange={(value) => setSelectedYear(value)}
-          >
-            {['2022', '2023', '2024', '2025'].map((year) => (
-              <Select.Option key={year} value={year}>
-                {year}
-              </Select.Option>
-            ))}
+
+          <Select value={selectedMonth} style={{ width: 150 }} onChange={(value) => { setSelectedMonth(value); }}>
+            {months.map((month) => <Select.Option key={month.value} value={month.value}>{month.label}</Select.Option>)}
           </Select>
 
-          {/* New Status Filter */}
-          <Select
-            placeholder="Filter by Status"
-            style={{ width: 200 }}
-            onChange={handleStatusFilter}
-            allowClear
-          >
-            <Select.Option value="not paid">Unpaid</Select.Option>
+          <Select value={selectedYear} style={{ width: 120 }} onChange={(value) => { setSelectedYear(value); }}>
+            {years.map((year) => <Select.Option key={year} value={year}>{year}</Select.Option>)}
+          </Select>
+
+          <Select placeholder="Filter by Status" value={selectedStatus} style={{ width: 200 }} onChange={handleStatusFilter} allowClear>
+          <Select.Option value="not paid">Unpaid</Select.Option>
             <Select.Option value="pending">Paid</Select.Option>
-            <Select.Option value="waiting approval">Waiting Approval</Select.Option>
+
             <Select.Option value="approved">Approved</Select.Option>
-            <Select.Option value="rejected">Rejected</Select.Option>
+          
           </Select>
         </div>
 
         <Table columns={columns} dataSource={filteredData} rowKey="id" />
 
         {/* View Invoice Modal */}
-        <Modal
-          title="View Invoice"
-          open={isViewInvoiceVisible}
-          footer={null}
-          onCancel={() => setIsViewInvoiceVisible(false)}
-        >
+        <Modal title="View Invoice" open={isViewInvoiceVisible} footer={null} onCancel={() => setIsViewInvoiceVisible(false)}>
           {selectedInvoiceUrl && <iframe src={selectedInvoiceUrl} style={{ width: '100%', height: '500px' }} />}
         </Modal>
       </div>
