@@ -99,7 +99,7 @@ const Contact: React.FC = (): JSX.Element => {
           </div>
           <div className="flex items-center p-4 border rounded-md shadow-md hover:shadow-lg mt-10 text-white">
             <div className="flex-grow">
-              <span className="text-lg text-white font-semibold">Intenational</span>
+              <span className="text-lg text-white font-semibold">International</span>
               <Button style={{backgroundColor:"black",color:'white' ,marginLeft:30}} onClick={() => setIsModalVisible(true)}>
             Proceed to Payment
           </Button>

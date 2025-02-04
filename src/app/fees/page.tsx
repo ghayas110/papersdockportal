@@ -63,6 +63,7 @@ const StudentFeePage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data.data) {
+        console.log(data.data,"feedata")
         setFeeData(data.data);
       } else {
         message.error(data.message || 'Failed to fetch fee data');

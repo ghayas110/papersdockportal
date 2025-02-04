@@ -44,8 +44,7 @@ const DropdownUser = () => {
             {userData?.name || "Guest User"}
           </span>
           <span className="block text-xs">
-            {userData?.user_type=="admin"?"Admin":
-            userData?.selected_course=="OS"?"A2":userData?.selected_course=="Both"?"Composite":"AS"} 
+            {userData?.user_type=="admin"?"Admin":userData?.selected_course=="OS"?"A2":userData?.selected_course=="Both"?"Composite":userData?.selected_course=="AS"?"AS":userData?.selected_course=="P2 Crash Course"?"P2":userData?.selected_course=="P4 Crash Course"?"P4":userData?.selected_course=="Crash Composite"?"Crash Composite":"Guest User"} 
           </span>
         </span>
 
