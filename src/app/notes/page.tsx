@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Button, Modal, message } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import NotesCard from '@/components/NotesCard/page';
+import { LuGalleryHorizontal } from 'react-icons/lu';
 
 const { TabPane } = Tabs;
 
@@ -32,13 +33,16 @@ const NotesView: React.FC = () => {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
     if (userData.selected_course) {
-      setSelectedCourse(userData.selected_course);
-      fetchNotes();
+      console.log(userData.selected_course, "userData.selected_course")
+      setSelectedCourse(userData.selected_course == "P2 Crash Course" ? "AS" :userData.selected_course == "P4 Crash Course" ? "OS" :userData.selected_course == "Crash Composite" ? "Both" : userData.selected_course);
+      fetchNotes(userData.selected_course);
     }
   }, []);
-  const fetchNotes = async () => {
+  const fetchNotes = async (course: any) => {
+    // const courseData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    let courseType = course == "P2 Crash Course" ? "AS" :course == "P4 Crash Course" ? "OS" :course == "Crash Composite" ? "Both" : course;
     try {
-      const response = await fetch('https://be.papersdock.com/notes/get-all-notes', {
+      const response = await fetch(`https://be.papersdock.com/notes/get-notes-by-coursetype/${courseType}`, {
         headers: {
           'accesstoken': `Bearer ${accessToken}`,
           'x-api-key': 'lms_API',
@@ -46,6 +50,7 @@ const NotesView: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        console.log(data.data, "notes")
         setNotes(data.data);
       } else {
         message.error(data.message);
