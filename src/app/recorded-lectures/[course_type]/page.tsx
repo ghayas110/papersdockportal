@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Table, Button, Space, Modal, Form, Input, Upload, message } from 'antd';
+import { Table, Button, Space, Modal, Form, Input, Upload, message, Select } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
@@ -47,6 +47,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     }
   }, [courseType]);
 
+  
   const fetchChapters = async () => {
     try {
       const response = await fetch('https://be.papersdock.com/chapters/get-all-chapters', {
@@ -215,6 +216,30 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
     setViewModalOpen(true);
   };
 
+  const handleCopyChange = async (id: string , value: string) => {
+     try {
+          console.log(id, value)
+          const response = await fetch('https://be.papersdock.com/chapters/copy-chapter', {
+            method: 'POST',
+            headers: {
+              'accesstoken': `Bearer ${accessToken}`,
+              'x-api-key': 'lms_API',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({chapter_id: id,course_type: value }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+        
+            message.success(data.message);
+          } else {
+            message.error(data.message);
+          }
+        } catch (error) {
+          console.error('Failed ', error);
+          message.error('Failed ');
+        }
+  }
   const columns = [
     {
       title: 'Chapter ID',
@@ -245,7 +270,7 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
             Edit
           </Button>
           <Button
-            onClick={() => handleDeleteChapter(record)}
+          onClick={() => handleDeleteChapter(record)}
             style={{ color: 'red', borderColor: 'rgb(28, 36, 52)' }}
           >
             Delete
@@ -256,6 +281,12 @@ const AddCourse: React.FC<AddCourseProps> = ({ params }) => {
           >
             Add Lecture
           </Button>
+          <Select defaultValue={"Copy Chapter"} style={{ width: 150 }} onChange={(value) => handleCopyChange(record.chap_id, value)}>
+          <Select.Option value="P2 Crash Course">P2 Crash Course</Select.Option>
+          <Select.Option value="P4 Crash Course">P4 Crash Course</Select.Option>
+       
+          {/* <Select.Option value="rejected">Rejected</Select.Option> */}
+        </Select>
         </Space>
       ),
     },
