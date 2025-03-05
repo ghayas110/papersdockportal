@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import Header2 from '@/sections/Header2';
 import { LuGalleryHorizontal } from 'react-icons/lu';
+import NotesCard from '@/components/NotesCard/page';
 
 interface Note {
   note_id: string;
@@ -70,7 +71,8 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
   return (
     <section
       style={{
-        background: "linear-gradient(#010E24,#4e7387,#010E24, #010E24,#010E24, #4e7387, #010E24)",
+        flex: 1,
+        background: "#F1F5F9",
       }}
       className="h-screen"
     >
@@ -80,30 +82,38 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
           notes.map((note) => {
             const fileName = formatFileName(note.note_url); // Format the file name
             return (
-              <div
-                key={note.note_id}
-                className="flex flex-col items-center justify-center bg-[#010E24] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                style={{ width: '240px', height: '250px', cursor: 'pointer' }}
-                onClick={() => handleViewNote(note)}
-              >
-                {/* White portion on top */}
-                <div
-                  className="w-full bg-white text-center py-2"
-                  style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
-                >
-                  <h3 style={{ fontWeight: 'bold', fontSize: '14px', margin: '0', color: '#010E24' }}>
-                    {(note.name).toUpperCase()}
-                  </h3>
-                </div>
+              // <div
+              //   key={note.note_id}
+              //   className="flex flex-col items-center justify-center bg-[#010E24] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              //   style={{ width: '240px', height: '250px', cursor: 'pointer' }}
+              //   onClick={() => handleViewNote(note)}
+              // >
+              //   {/* White portion on top */}
+              //   <div
+              //     className="w-full bg-white text-center py-2"
+              //     style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
+              //   >
+              //     <h3 style={{ fontWeight: 'bold', fontSize: '14px', margin: '0', color: '#010E24' }}>
+              //       {(note.name).toUpperCase()}
+              //     </h3>
+              //   </div>
 
-                {/* Main Content */}
-                <div
-                  className="flex-1 flex flex-col items-center justify-center"
-                  style={{ textAlign: 'center' }}
-                >
-                  <img src={`https://be.papersdock.com${note.image}`} alt="PDF Icon" style={{ width: '100px', height: '100px' }} />
-                </div>
-              </div>
+              //   {/* Main Content */}
+              //   <div
+              //     className="flex-1 flex flex-col items-center justify-center"
+              //     style={{ textAlign: 'center' }}
+              //   >
+              //     <img src={`https://be.papersdock.com${note.image}`} alt="PDF Icon" style={{ width: '100px', height: '100px' }} />
+              //   </div>
+              // </div>
+              <NotesCard
+              key={note.note_id}
+              notesId={note.note_id}
+              image={`https://be.papersdock.com${note.image}`}
+              title=  {(note.name).toUpperCase()}
+              viewNotesUrl={`https://be.papersdock.com${note.note_url}`}
+              downloadNotesUrl={`https://be.papersdock.com${note.note_url}`}
+            />
             );
           })
         ) : (

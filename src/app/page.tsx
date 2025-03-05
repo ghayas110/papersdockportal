@@ -12,8 +12,6 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <section className="bg-gray-900">
-    <HomeScreen/>
-    </section>
+ <HomeScreen/>
   );
 }

@@ -64,30 +64,7 @@ const VideoView: React.FC<VideoViewProps> = ({ params }) => {
       message.error('Failed to fetch lecture');
     }
   };
-  let devToolsOpen = false;
 
-  const detectDevTools = () => {
-    const threshold = 160; // Threshold for detecting dev tools
-  
-    if (
-      window.outerWidth - window.innerWidth > threshold || 
-      window.outerHeight - window.innerHeight > threshold
-    ) {
-      if (!devToolsOpen) {
-        devToolsOpen = true;
-    
-        router.push('/');
-        message.error('Dev tools detected. Please Do not use DevTools in Lectures');
-      }
-    } else {
-      devToolsOpen = false;
-    }
-  };
-  
-  // Continuously check for dev tools every second
-  setInterval(() => {
-    detectDevTools();
-  }, 1000);
   useEffect(() => {
     const handleContextMenu = (e: { preventDefault: () => void; }) => {
       e.preventDefault();
