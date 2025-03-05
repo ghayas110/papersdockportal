@@ -82,30 +82,8 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
           notes.map((note) => {
             const fileName = formatFileName(note.note_url); // Format the file name
             return (
-              // <div
-              //   key={note.note_id}
-              //   className="flex flex-col items-center justify-center bg-[#010E24] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-              //   style={{ width: '240px', height: '250px', cursor: 'pointer' }}
-              //   onClick={() => handleViewNote(note)}
-              // >
-              //   {/* White portion on top */}
-              //   <div
-              //     className="w-full bg-white text-center py-2"
-              //     style={{ borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
-              //   >
-              //     <h3 style={{ fontWeight: 'bold', fontSize: '14px', margin: '0', color: '#010E24' }}>
-              //       {(note.name).toUpperCase()}
-              //     </h3>
-              //   </div>
-
-              //   {/* Main Content */}
-              //   <div
-              //     className="flex-1 flex flex-col items-center justify-center"
-              //     style={{ textAlign: 'center' }}
-              //   >
-              //     <img src={`https://be.papersdock.com${note.image}`} alt="PDF Icon" style={{ width: '100px', height: '100px' }} />
-              //   </div>
-              // </div>
+          <>
+        
               <NotesCard
               key={note.note_id}
               notesId={note.note_id}
@@ -114,6 +92,7 @@ const ViewWebNotes: React.FC<ViewWebNotesProps> = ({ params }) => {
               viewNotesUrl={`https://be.papersdock.com${note.note_url}`}
               downloadNotesUrl={`https://be.papersdock.com${note.note_url}`}
             />
+              </>
             );
           })
         ) : (
