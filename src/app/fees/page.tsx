@@ -135,7 +135,7 @@ const StudentFeePage: React.FC = () => {
         const date = new Date().toLocaleDateString(); // Current date
   
         setInvoiceData({
-          amount: product.price * 100, // Store in cents
+          amount: product.price , // Store in cents
           email: product.email,
           name: product.name,
           date,
