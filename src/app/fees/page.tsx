@@ -117,31 +117,43 @@ const StudentFeePage: React.FC = () => {
 
   };
   const onToken = async (token: any) => {
+    if (!product.name || !product.email || !product.price) {
+      alert("Please fill all fields.");
+      return;
+    }
+  
+    if (product.price < 5) {
+      alert("Please enter a minimum of $5.");
+      return;
+    }
+  
     try {
       const response = await axios.post('https://be.papersdock.com/checkout', { token, product });
-      console.log(response,"hello response")
-      if (response.status === 200 && response.data.status!="failure") {
+  
+      if (response.status === 200 && response.data.status !== "failure") {
         const invoiceNumber = `INV-${Date.now()}`; // Generate a unique invoice number
         const date = new Date().toLocaleDateString(); // Current date
-
+  
         setInvoiceData({
-          amount: product.price,
+          amount: product.price * 100, // Store in cents
           email: product.email,
           name: product.name,
           date,
           invoiceNumber,
         });
-
-        message.success('Payment successful!');
+  
+        message.success("Payment successful!");
         setPaymentSuccess(true);
       } else {
-        message.error('Payment failed, please try again.');
+        message.error("Payment failed, please try again.");
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      message.error('Payment failed, please try again.');
+      console.error("Payment error:", error);
+      message.error("Payment failed, please try again.");
     }
   };
+  
+  
 
   const handlePrint = () => {
     const printContents = invoiceRef.current?.innerHTML;
