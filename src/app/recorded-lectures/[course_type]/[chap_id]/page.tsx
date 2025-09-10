@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Table, Button, Space, Modal, Form, Input, Upload, message, Progress } from 'antd';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { useState, useEffect } from 'react';
-import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, UploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 interface Lecture {
@@ -17,8 +17,8 @@ interface Lecture {
 
 interface AddLectureProps {
   params: {
-    course_type: string;
-    chap_id: string;
+    course_type: string; // e.g. "AS"
+    chap_id: string;     // e.g. "34"
   };
 }
 
@@ -37,9 +37,12 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isDeleteDisabled, setIsDeleteDisabled] = useState(false);
 
+  // NEW: track row download loading state
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const [form] = Form.useForm();
 
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
   const chapterId = parseInt(params.chap_id);
 
   useEffect(() => {
@@ -116,7 +119,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       }
       setDeleteModalOpen(false);
       setSelectedLecture(null);
-      setIsDeleteDisabled(false); // Re-enable button after completion
+      setIsDeleteDisabled(false);
     }
   };
 
@@ -172,7 +175,6 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
             throw new Error(data.message || 'Upload failed');
           }
 
-          // Update progress for each chunk
           uploadedChunks++;
           const progressPercent = Math.round((uploadedChunks / totalChunks) * 100);
           setUploadProgress(progressPercent);
@@ -191,7 +193,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
       setIsDisabled(false);
       setAddModalOpen(false);
       setFileList([]);
-      setUploadProgress(100); // Ensure progress reaches 100%
+      setUploadProgress(100);
     }
   };
 
@@ -236,7 +238,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
 
   const handleUploadChange = ({ fileList }: any) => {
     setFileList(fileList);
-    setUploadProgress(0); // Reset the progress when a new file is selected
+    setUploadProgress(0);
   };
 
   const handleViewLecture = (lecture: Lecture) => {
@@ -244,34 +246,94 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
     setViewModalOpen(true);
   };
 
+  // ---------- DOWNLOAD HELPERS ----------
+  const safeFileName = (title: string, lecId: string, url: string) => {
+    const last = (url.split('/').pop() || '').split('?')[0];
+    const ext = last.includes('.') ? last.split('.').pop() || 'mp4' : 'mp4';
+    const base = (title || 'Lecture')
+      .replace(/[^\w\- ]+/g, '')
+      .trim()
+      .replace(/\s+/g, '_');
+    return `${base || 'Lecture'}_${lecId}.${ext}`;
+  };
+
+  const handleDownloadLecture = async (lecture: Lecture) => {
+    const url = `https://be.papersdock.com${lecture.file_url}`;
+    setDownloadingId(lecture.lec_id);
+    try {
+      // Try to fetch as blob (best UX; requires CORS enabled by server)
+      const resp = await fetch(url, { mode: 'cors' }); // no custom headers to avoid preflight issues
+      if (!resp.ok) throw new Error('Failed to fetch file');
+      const blob = await resp.blob();
+
+      const fileName = safeFileName(lecture.title, lecture.lec_id, lecture.file_url);
+      const link = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      message.success('Download started');
+    } catch (err) {
+      // Fallback: open in a new tab (server may stream or force download)
+      window.open(url, '_blank', 'noopener,noreferrer');
+      message.info('Opened in a new tab. If it streams, use the browser menu to save.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+  // -------------------------------------
+
   const columns = [
     {
       title: 'Lecture ID',
       dataIndex: 'lec_id',
       key: 'lec_id',
+      width: 120,
     },
     {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
+      ellipsis: true,
     },
     {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
+      width: 150,
       render: (text: string) => moment(text).format('YYYY-MM-DD'),
     },
     {
-      title: 'View Lecture',
+      title: 'View',
       key: 'file_url',
-      render: (text: string, record: Lecture) => (
+      width: 120,
+      render: (_: string, record: Lecture) => (
         <Button type="link" onClick={() => handleViewLecture(record)}>View Lecture</Button>
+      ),
+    },
+    // NEW: Download column
+    {
+      title: 'Download',
+      key: 'download',
+      width: 140,
+      render: (_: string, record: Lecture) => (
+        <Button
+          icon={<DownloadOutlined />}
+          onClick={() => handleDownloadLecture(record)}
+          loading={downloadingId === record.lec_id}
+        >
+          Download
+        </Button>
       ),
     },
     {
       title: 'Action',
       key: 'action',
-      render: (text: string, record: Lecture) => (
+      width: 120,
+      render: (_: string, record: Lecture) => (
         <Space size="middle">
           <Button
             onClick={() => handleDeleteLecture(record)}
@@ -287,20 +349,30 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
   return (
     <DefaultLayout>
       <div className="container mx-auto p-8">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <ArrowLeftOutlined onClick={() => router.back()} className="cursor-pointer" />
-          <h1 className="text-3xl font-bold mb-8">Add Lectures</h1>
-          <p>.</p>
+          <h1 className="text-2xl font-semibold">
+            Recorded Lectures · {params.course_type} / Chapter {params.chap_id}
+          </h1>
+          <span />
         </div>
+
         <Button
           type="primary"
-          className="mb-4"
+          className="mt-6 mb-4"
           onClick={handleAddLecture}
           style={{ backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' }}
+          loading={isLoading}
         >
           Add Lecture
         </Button>
-        <Table columns={columns} dataSource={lectures} rowKey="lec_id" />
+
+        <Table
+          columns={columns as any}
+          dataSource={lectures}
+          rowKey="lec_id"
+          pagination={{ pageSize: 10 }}
+        />
 
         {/* Add Lecture Modal */}
         <Modal
@@ -309,7 +381,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           onOk={handleConfirmAdd}
           onCancel={() => setAddModalOpen(false)}
           okButtonProps={{
-            disabled: isDisabled, // Disable OK button
+            disabled: isDisabled,
             style: { backgroundColor: 'rgb(28, 36, 52)', borderColor: 'rgb(28, 36, 52)' },
           }}
           cancelButtonProps={{ disabled: isDisabled }}
@@ -360,7 +432,7 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
             <Form.Item
               name="lecture"
               label="Upload Lecture File"
-              rules={[{ required: false, message: 'Please upload a lecture file!' }]}
+              rules={[{ required: false }]}
             >
               <Upload
                 beforeUpload={() => false}
@@ -395,10 +467,15 @@ const AddLecture: React.FC<AddLectureProps> = ({ params }) => {
           footer={null}
           onCancel={() => setViewModalOpen(false)}
         >
-          {videoUrl && <video src={videoUrl} controls   onContextMenu={(e) => e.preventDefault()}  // Prevent right-click
-      controlsList="nodownload"  // Add 'nodownload' attribute to HTML5 video controls
-      style={{ pointerEvents: 'none' }}  // Prevent interaction with default video controls
-           />}
+          {videoUrl && (
+            <video
+              src={videoUrl}
+              controls
+              onContextMenu={(e) => e.preventDefault()}
+              controlsList="nodownload"
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
         </Modal>
       </div>
     </DefaultLayout>
